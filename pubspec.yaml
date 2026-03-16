@@ -8,9 +8,7 @@ topics:
   - ui
   - widgets
   - design-system
-  - game-ui
   - warcraft
-  - fantasy
 
 environment:
   sdk: ">=3.3.0 <4.0.0"
