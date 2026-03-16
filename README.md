@@ -1,8 +1,20 @@
-# warcraft_flutter_components
+# Warcraft Flutter Components
 
-Warcraft-themed Flutter UI components inspired by the WarcraftCN React UI. Includes ready-to-use widgets, themed assets, and an example app.
+[![pub package](https://img.shields.io/pub/v/warcraft_flutter_components.svg)](https://pub.dev/packages/warcraft_flutter_components)
+[![Example](https://img.shields.io/badge/example-live-blue)](https://allingaming.github.io/warcraft_flutter_components/)
+[![license](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
-**Components**
+Warcraft-themed Flutter UI components inspired by the WarcraftCN React UI. Includes ready-to-use widgets, themed assets, and a full example app.
+
+## Features
+
+- Ready-made Warcraft UI widgets (buttons, cards, tabs, inputs, etc).
+- Faction-themed tabs and visual variants.
+- Custom 9-slice border box rendering for frames and panels.
+- Example app showcasing all components.
+
+## Components
+
 - `WarcraftAccordion`
 - `WarcraftAvatar`
 - `WarcraftBadge`
@@ -20,13 +32,21 @@ Warcraft-themed Flutter UI components inspired by the WarcraftCN React UI. Inclu
 - `WarcraftTextarea`
 - `WarcraftTooltip`
 
-**Install**
+## Install
+
+```bash
+flutter pub add warcraft_flutter_components
+```
+
+Or add to `pubspec.yaml`:
+
 ```yaml
 dependencies:
   warcraft_flutter_components: ^0.1.0
 ```
 
-**Usage**
+## Usage
+
 ```dart
 import 'package:warcraft_flutter_components/warcraft_flutter_components.dart';
 
@@ -37,7 +57,8 @@ WarcraftButton(
 );
 ```
 
-**Examples**
+### More examples
+
 ```dart
 WarcraftInput(
   hintText: 'Enter your name...',
@@ -56,12 +77,26 @@ WarcraftPagination(
 );
 ```
 
-**Example app**
+## Example app
+
 ```bash
 cd example
 flutter run
 ```
 
-**Notes**
-- Asset-heavy widgets (tabs, accordion, buttons) rely on the bundled assets under `assets/warcraft/`.
+Hosted example (web): https://allingaming.github.io/warcraft_flutter_components/
+
+## Notes
+
+- Asset-heavy widgets rely on the bundled assets under `assets/warcraft/`.
 - The package uses the Cinzel font via `google_fonts` for the fantasy look.
+
+## Tests
+
+```bash
+flutter test
+```
+
+## License
+
+MIT (see `LICENSE`).
