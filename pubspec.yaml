@@ -1,0 +1,32 @@
+name: warcraft_flutter_components
+description: Warcraft-themed Flutter UI components inspired by WarcraftCN.
+version: 0.1.0
+topics:
+  - flutter
+  - ui
+  - widgets
+  - design-system
+  - game-ui
+  - warcraft
+  - fantasy
+
+environment:
+  sdk: ">=3.3.0 <4.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_svg: ^2.0.10
+  google_fonts: ^6.2.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/warcraft/
+    - assets/warcraft/tabs/
+    - assets/warcraft/svg/
