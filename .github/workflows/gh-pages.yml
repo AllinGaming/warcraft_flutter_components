@@ -28,17 +28,17 @@ jobs:
           cache: true
 
       - name: Pub get
-        working-directory: warcraft_flutter_components/example
+        working-directory: example
         run: flutter pub get
 
       - name: Build web
-        working-directory: warcraft_flutter_components/example
+        working-directory: example
         run: flutter build web --release --base-href /${{ github.event.repository.name }}/
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: warcraft_flutter_components/example/build/web
+          path: example/build/web
 
   deploy:
     needs: build
