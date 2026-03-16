@@ -2,7 +2,7 @@ name: warcraft_flutter_components
 description: Warcraft-themed Flutter UI components inspired by WarcraftCN.
 homepage: https://github.com/AllinGaming/warcraft_flutter_components
 repository: https://github.com/AllinGaming/warcraft_flutter_components
-version: 0.1.0
+version: 0.1.1
 topics:
   - flutter
   - ui
