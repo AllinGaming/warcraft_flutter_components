@@ -2,6 +2,7 @@
 
 [![pub package](https://img.shields.io/pub/v/warcraft_flutter_components.svg)](https://pub.dev/packages/warcraft_flutter_components)
 [![Example](https://img.shields.io/badge/example-live-blue)](https://allingaming.github.io/warcraft_flutter_components/)
+[![GitHub Pages](https://img.shields.io/badge/GitHub%20Pages-live-blue)](https://allingaming.github.io/warcraft_flutter_components/)
 [![license](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
 Warcraft-themed Flutter UI components inspired by the WarcraftCN React UI. Includes ready-to-use widgets, themed assets, and a full example app.
