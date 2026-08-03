@@ -76,7 +76,7 @@ class WarcraftBadge extends StatelessWidget {
       );
     }
 
-    final tinted = _factionBackground(decorated);
+    final tinted = _factionBackground(_variantBackground(decorated));
 
     return ConstrainedBox(
       constraints: BoxConstraints(maxWidth: maxWidth),
@@ -158,6 +158,24 @@ class WarcraftBadge extends StatelessWidget {
       case WarcraftBadgeShape.defaultShape:
         return BorderRadius.circular(4);
     }
+  }
+
+  /// `destructive` shares its frame asset with `defaultVariant` (there's no
+  /// separate carved-frame art for it), so it needs its own background wash
+  /// to read as visually distinct rather than differing only by text color.
+  /// Reuses the same wash technique — and the same horde red — as
+  /// [_factionBackground].
+  Widget _variantBackground(Widget child) {
+    if (variant != WarcraftBadgeVariant.destructive) {
+      return child;
+    }
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: const Color(0xFF450A0A).withAlpha(140),
+        border: Border.all(color: const Color(0xFF7F1D1D).withAlpha(153)),
+      ),
+      child: child,
+    );
   }
 
   Widget _factionBackground(Widget child) {

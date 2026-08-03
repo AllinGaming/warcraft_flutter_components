@@ -7,7 +7,8 @@ Enterprise-readiness overhaul. Includes breaking API changes (pre-1.0).
 - **New components**: `WarcraftToast` (faction/type/position variants, stacking, auto-dismiss) and `WarcraftCursor` (faction hero cursor that follows the pointer on desktop/web) — the package now covers all 18 warcraftcn/ui components.
 - **Fixed**: `WarcraftBorderBox` (and by extension every widget built on it) no longer leaks decoded images across rebuilds, now reports asset-resolution errors instead of failing silently, and no longer redundantly re-subscribes its image stream on unrelated dependency changes.
 - **Fixed**: `WarcraftInput`/`WarcraftTextarea` no longer duplicate their own buggy copy of the 9-slice image painter — both now delegate to the shared, fixed `WarcraftBorderBox`.
-- **Fixed**: `WarcraftDropdownMenu` submenus now open anchored to the tapped item instead of at a fixed, unrelated screen position.
+- **Fixed**: `WarcraftDropdownMenu` submenus now open anchored to the tapped item instead of at a fixed, unrelated screen position; fixed an entry-index desync where a label/separator preceding other entries could route a tap to the wrong item; fixed a runtime `TypeError` when using `WarcraftMenuRadio<T>` with a concrete (non-`dynamic`) `T`.
+- **Fixed**: `WarcraftBadge`'s `destructive` variant now gets its own red background wash instead of sharing `defaultVariant`'s exact frame asset and being distinguished only by text color.
 - **Fixed**: `WarcraftAccordion` no longer desyncs its expand/collapse state when a same-length-but-different item list is swapped in, and no longer mutates the item model as a side effect of tapping.
 - **Fixed**: `WarcraftSkeleton`'s shimmer sweep now scales with the widget's actual rendered width instead of a hardcoded fallback.
 - **Fixed**: `WarcraftCard` no longer forces a 420px minimum height by default — cards size to their content unless `minHeight` is explicitly set.
