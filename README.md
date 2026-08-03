@@ -66,7 +66,6 @@ WarcraftButton(
 ```dart
 WarcraftInput(
   hintText: 'Enter your name...',
-  capWidth: 28,
   maxWidth: 520,
 );
 
@@ -104,7 +103,7 @@ Hosted example (web): https://allingaming.github.io/warcraft_flutter_components/
 ## Notes
 
 - Asset-heavy widgets rely on the bundled assets under `assets/warcraft/`.
-- The package uses the Cinzel font via `google_fonts` for the fantasy look.
+- The package bundles the Cinzel font directly (see `pubspec.yaml`'s `fonts:` section) for the fantasy look — no network fetch, so it works offline and in sandboxed release builds.
 
 ## Tests
 

@@ -2,10 +2,17 @@ import 'package:flutter/material.dart';
 import '../foundation/warcraft_faction.dart';
 
 /// Shape variants for skeletons.
-enum WarcraftSkeletonShape { rounded, circular }
+enum WarcraftSkeletonShape {
+  /// A rectangle with slightly rounded corners.
+  rounded,
+
+  /// A fully rounded (pill/circle) shape, for avatars and icons.
+  circular,
+}
 
 /// Warcraft-themed loading skeleton with shimmer.
 class WarcraftSkeleton extends StatefulWidget {
+  /// Creates a [WarcraftSkeleton].
   const WarcraftSkeleton({
     super.key,
     this.width,
@@ -15,9 +22,19 @@ class WarcraftSkeleton extends StatefulWidget {
     this.semanticLabel = 'Loading',
   });
 
+  /// Fixed width of the skeleton. If `null`, sizes to the incoming
+  /// constraints.
   final double? width;
+
+  /// Fixed height of the skeleton. If `null`, sizes to the incoming
+  /// constraints.
   final double? height;
+
+  /// Which faction's color palette to use for the base and shimmer
+  /// gradients.
   final WarcraftFaction faction;
+
+  /// Whether the skeleton is drawn as a rounded rectangle or a circle.
   final WarcraftSkeletonShape shape;
 
   /// Announced to assistive technology while the skeleton is shown. Pass

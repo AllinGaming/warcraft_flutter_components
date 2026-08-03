@@ -4,37 +4,55 @@ import '../theme/warcraft_tokens.dart';
 
 /// Base class for Warcraft dropdown menu entries.
 abstract class WarcraftMenuEntry {
+  /// Const constructor for subclasses.
   const WarcraftMenuEntry();
 }
 
 /// Clickable menu action item.
 class WarcraftMenuAction extends WarcraftMenuEntry {
+  /// Creates a [WarcraftMenuAction] with the given [label] and [onSelected]
+  /// callback.
   const WarcraftMenuAction({
     required this.label,
     this.onSelected,
     this.enabled = true,
   });
 
+  /// The text shown for this action.
   final String label;
+
+  /// Called when the user selects this action.
   final VoidCallback? onSelected;
+
+  /// Whether this action can be selected. Defaults to `true`; disabled
+  /// actions are shown but not tappable.
   final bool enabled;
 }
 
 /// Checkbox item for menus.
 class WarcraftMenuCheckbox extends WarcraftMenuEntry {
+  /// Creates a [WarcraftMenuCheckbox] with the given [label], current
+  /// [value], and [onChanged] callback.
   const WarcraftMenuCheckbox({
     required this.label,
     required this.value,
     required this.onChanged,
   });
 
+  /// The text shown next to the checkbox.
   final String label;
+
+  /// Whether the checkbox is currently checked.
   final bool value;
+
+  /// Called with the new checked state when the item is selected.
   final ValueChanged<bool> onChanged;
 }
 
 /// Radio item for menus.
 class WarcraftMenuRadio<T> extends WarcraftMenuEntry {
+  /// Creates a [WarcraftMenuRadio] with the given [label], [value],
+  /// [groupValue], and [onChanged] callback.
   const WarcraftMenuRadio({
     required this.label,
     required this.value,
@@ -42,9 +60,17 @@ class WarcraftMenuRadio<T> extends WarcraftMenuEntry {
     required this.onChanged,
   });
 
+  /// The text shown next to the radio button.
   final String label;
+
+  /// The value represented by this radio item.
   final T value;
+
+  /// The currently selected value for the radio group; this item renders as
+  /// selected when it equals [value].
   final T groupValue;
+
+  /// Called with [value] when this item is selected.
   final ValueChanged<T> onChanged;
 
   /// Invokes [onChanged] with [value].
@@ -62,28 +88,39 @@ class WarcraftMenuRadio<T> extends WarcraftMenuEntry {
 
 /// Section label for menus.
 class WarcraftMenuLabel extends WarcraftMenuEntry {
+  /// Creates a [WarcraftMenuLabel] displaying [label].
   const WarcraftMenuLabel(this.label);
+
+  /// The section label text, rendered upper-cased.
   final String label;
 }
 
 /// Divider item for menus.
 class WarcraftMenuSeparator extends WarcraftMenuEntry {
+  /// Creates a [WarcraftMenuSeparator].
   const WarcraftMenuSeparator();
 }
 
 /// Submenu item containing nested entries.
 class WarcraftMenuSubmenu extends WarcraftMenuEntry {
+  /// Creates a [WarcraftMenuSubmenu] with the given [label] and nested
+  /// [children].
   const WarcraftMenuSubmenu({
     required this.label,
     required this.children,
   });
 
+  /// The text shown for this submenu entry.
   final String label;
+
+  /// The nested entries shown when this submenu is opened.
   final List<WarcraftMenuEntry> children;
 }
 
 /// Warcraft-themed dropdown menu wrapper.
 class WarcraftDropdownMenu extends StatelessWidget {
+  /// Creates a [WarcraftDropdownMenu] wrapping [child], showing [items] when
+  /// opened.
   const WarcraftDropdownMenu({
     super.key,
     required this.child,
@@ -91,8 +128,13 @@ class WarcraftDropdownMenu extends StatelessWidget {
     this.enabled = true,
   });
 
+  /// The widget that triggers the menu when tapped.
   final Widget child;
+
+  /// The entries shown in the dropdown menu.
   final List<WarcraftMenuEntry> items;
+
+  /// Whether the menu can be opened. Defaults to `true`.
   final bool enabled;
 
   static const _menuColor = Color(0xFF1B130B);

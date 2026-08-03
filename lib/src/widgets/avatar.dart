@@ -4,10 +4,20 @@ import '../foundation/warcraft_faction.dart';
 import '../theme/warcraft_theme.dart';
 
 /// Size presets for Warcraft avatars.
-enum WarcraftAvatarSize { sm, md, lg }
+enum WarcraftAvatarSize {
+  /// Small avatar (96x96 logical pixels).
+  sm,
+
+  /// Medium avatar (160x160 logical pixels).
+  md,
+
+  /// Large avatar (240x240 logical pixels).
+  lg
+}
 
 /// Warcraft-styled avatar with faction frame and optional image.
 class WarcraftAvatar extends StatelessWidget {
+  /// Creates a [WarcraftAvatar].
   const WarcraftAvatar({
     super.key,
     this.image,
@@ -16,9 +26,17 @@ class WarcraftAvatar extends StatelessWidget {
     this.size = WarcraftAvatarSize.md,
   });
 
+  /// The image shown inside the frame. When `null`, [fallback] is shown
+  /// instead.
   final ImageProvider? image;
+
+  /// Widget shown in place of [image] when no image is provided.
   final Widget? fallback;
+
+  /// The faction whose decorative frame is drawn around the avatar.
   final WarcraftFaction faction;
+
+  /// The overall size of the avatar.
   final WarcraftAvatarSize size;
 
   @override

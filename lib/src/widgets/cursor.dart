@@ -12,6 +12,7 @@ import '../theme/warcraft_theme.dart';
 /// painted and the platform's default touch behavior is left untouched — no
 /// platform detection is required.
 class WarcraftCursor extends StatefulWidget {
+  /// Creates a [WarcraftCursor].
   const WarcraftCursor({
     super.key,
     required this.child,
@@ -20,8 +21,13 @@ class WarcraftCursor extends StatefulWidget {
     this.builder,
   });
 
+  /// The widget beneath the custom cursor overlay.
   final Widget child;
+
+  /// The faction skin used to tint the default sword cursor art.
   final WarcraftFaction faction;
+
+  /// The width and height of the cursor glyph, in logical pixels.
   final double size;
 
   /// Escape hatch for supplying custom hero-cursor art instead of the

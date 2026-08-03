@@ -34,6 +34,7 @@ linter:
     prefer_final_locals: true
     sized_box_for_whitespace: true
     avoid_redundant_argument_values: true
+    public_member_api_docs: true
 
 # Additional information about this file can be found at
 # https://dart.dev/guides/language/analysis-options

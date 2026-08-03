@@ -1,3 +1,8 @@
+/// Warcraft-themed Flutter UI components: 18 accessible, faction-aware
+/// widgets (buttons, inputs, tabs, cards, and more) built on a shared
+/// 9-slice image-frame primitive and design-token scale.
+library;
+
 export 'src/assets/warcraft_assets.dart';
 export 'src/foundation/warcraft_faction.dart';
 export 'src/theme/warcraft_theme.dart';

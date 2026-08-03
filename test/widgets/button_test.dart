@@ -104,6 +104,87 @@ void main() {
 
       expect(pressed, 1);
     });
+
+    testWidgets('Space key triggers onPressed when focused', (tester) async {
+      var pressed = 0;
+      final focusNode = FocusNode();
+      addTearDown(focusNode.dispose);
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: WarcraftButton(
+              focusNode: focusNode,
+              onPressed: () => pressed++,
+              child: const Text('Attack'),
+            ),
+          ),
+        ),
+      );
+
+      focusNode.requestFocus();
+      await tester.pump();
+      await tester.sendKeyEvent(LogicalKeyboardKey.space);
+      await tester.pump();
+
+      expect(pressed, 1);
+    });
+
+    testWidgets('shows a pressed-state tint while the pointer is down',
+        (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: WarcraftButton(
+              onPressed: () {},
+              child: const Text('Attack'),
+            ),
+          ),
+        ),
+      );
+
+      ColorFilter currentFilter() =>
+          tester.widget<ColorFiltered>(find.byType(ColorFiltered)).colorFilter;
+
+      const restFilter = ColorFilter.mode(Colors.transparent, BlendMode.darken);
+      final pressedFilter =
+          ColorFilter.mode(Colors.black.withAlpha(51), BlendMode.darken);
+
+      expect(currentFilter(), restFilter);
+
+      final gesture = await tester.startGesture(
+        tester.getCenter(find.byType(WarcraftButton)),
+      );
+      await tester.pump();
+      expect(currentFilter(), pressedFilter);
+
+      await gesture.up();
+      await tester.pump();
+      expect(currentFilter(), restFilter);
+    });
+
+    testWidgets('cancelling the gesture clears the pressed state',
+        (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: WarcraftButton(
+              onPressed: () {},
+              child: const Text('Attack'),
+            ),
+          ),
+        ),
+      );
+
+      final gesture = await tester.startGesture(
+        tester.getCenter(find.byType(WarcraftButton)),
+      );
+      await tester.pump();
+      await gesture.cancel();
+      await tester.pump();
+
+      expect(tester.takeException(), isNull);
+    });
   });
 }
 

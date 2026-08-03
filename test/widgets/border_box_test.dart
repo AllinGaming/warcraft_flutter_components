@@ -68,7 +68,96 @@ void main() {
       expect(size.height, lessThan(100));
     });
 
-    testWidgets('swapping to a different asset does not throw', (tester) async {
+    testWidgets('an explicit alignment positions the child within the frame',
+        (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: WarcraftBorderBox(
+              asset: WarcraftAssets.cardBg,
+              sliceInsets: const EdgeInsets.all(48),
+              alignment: Alignment.bottomRight,
+              child: const SizedBox(
+                width: 400,
+                height: 300,
+                child: Align(
+                  alignment: Alignment.bottomRight,
+                  child: Text('Corner'),
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.pump();
+
+      expect(find.text('Corner'), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('a boxShadow paints without throwing', (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: WarcraftBorderBox(
+              asset: WarcraftAssets.cardBg,
+              sliceInsets: const EdgeInsets.all(48),
+              boxShadow: const [
+                BoxShadow(blurRadius: 8),
+              ],
+              child: const Text('Shadowed'),
+            ),
+          ),
+        ),
+      );
+      await tester.pump();
+
+      expect(find.text('Shadowed'), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('tileCenter tiles the center region across a large panel',
+        (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: WarcraftBorderBox(
+              asset: WarcraftAssets.cardBg,
+              sliceInsets: const EdgeInsets.all(48),
+              tileCenter: true,
+              tileCenterInsets: const EdgeInsets.all(4),
+              child: const SizedBox(width: 600, height: 500),
+            ),
+          ),
+        ),
+      );
+      await tester.pump();
+
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('tileCenter on a panel too small to tile falls back gracefully',
+        (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: WarcraftBorderBox(
+              asset: WarcraftAssets.cardBg,
+              sliceInsets: const EdgeInsets.all(48),
+              tileCenter: true,
+              child: const SizedBox(width: 4, height: 4),
+            ),
+          ),
+        ),
+      );
+      await tester.pump();
+
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets(
+        'swapping to a different asset disposes the previous decoded image',
+        (tester) async {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
@@ -80,7 +169,10 @@ void main() {
           ),
         ),
       );
-      await tester.pump();
+      // Let the first asset's image fully decode before swapping, so the
+      // widget actually holds a previous decoded image to dispose (rather
+      // than swapping while `_image` is still null).
+      await tester.pumpAndSettle();
 
       await tester.pumpWidget(
         MaterialApp(
@@ -93,7 +185,9 @@ void main() {
           ),
         ),
       );
-      await tester.pump();
+      // The new image resolves, the old one is scheduled for disposal via a
+      // post-frame callback, and further pumps run that callback.
+      await tester.pumpAndSettle();
 
       expect(tester.takeException(), isNull);
     });

@@ -18,7 +18,6 @@ dependencies:
   flutter:
     sdk: flutter
   flutter_svg: ^2.0.10
-  google_fonts: ^8.0.2
 
 dev_dependencies:
   flutter_test:
@@ -31,3 +30,12 @@ flutter:
     - assets/warcraft/
     - assets/warcraft/tabs/
     - assets/warcraft/svg/
+  fonts:
+    - family: Cinzel
+      fonts:
+        - asset: assets/fonts/Cinzel-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/Cinzel-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/Cinzel-Bold.ttf
+          weight: 700

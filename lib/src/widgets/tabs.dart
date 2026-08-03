@@ -7,6 +7,9 @@ import 'border_box.dart';
 
 /// Warcraft-themed tabs with faction styling.
 class WarcraftTabs extends StatefulWidget {
+  /// Creates a [WarcraftTabs]. [labels] and [contents] must be the same
+  /// length, since each label corresponds to the content shown when it's
+  /// selected.
   const WarcraftTabs({
     super.key,
     required this.labels,
@@ -18,11 +21,25 @@ class WarcraftTabs extends StatefulWidget {
   }) : assert(
             labels.length == contents.length, 'labels and contents must match');
 
+  /// The text shown on each tab trigger, in display order.
   final List<String> labels;
+
+  /// The content panel shown for each tab, matched by index to [labels].
   final List<Widget> contents;
+
+  /// Which faction's assets and colors to use for the tab triggers and
+  /// content panel.
   final WarcraftFaction faction;
+
+  /// The index of the tab selected when the widget is first built.
   final int initialIndex;
+
+  /// Whether the tab triggers are laid out in a horizontal row (with the
+  /// content below) or a vertical column (with the content beside them).
   final Axis orientation;
+
+  /// Called with the newly selected index whenever the user picks a
+  /// different tab.
   final ValueChanged<int>? onChanged;
 
   @override
@@ -95,8 +112,14 @@ class _WarcraftTabsState extends State<WarcraftTabs> {
     final contentAsset = _contentAsset(widget.faction);
     // No maxHeight cap: taller panel content scrolls instead of being
     // silently clipped by WarcraftBorderBox's ClipRRect.
+    //
+    // minHeight only needs to cover the frame's own 48px top/bottom cap
+    // (see sliceInsets below) so the carved corners always render at full
+    // size instead of Skia proportionally shrinking them to fit a shorter
+    // panel — it's deliberately not a bigger, made-up "looks nice" number,
+    // which is what left short demo content stranded in a mostly-empty box.
     return ConstrainedBox(
-      constraints: const BoxConstraints(minHeight: 160),
+      constraints: const BoxConstraints(minHeight: 48 * 2),
       child: WarcraftBorderBox(
         asset: contentAsset,
         sliceInsets: const EdgeInsets.all(48),

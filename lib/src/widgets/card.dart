@@ -5,10 +5,17 @@ import '../theme/warcraft_tokens.dart';
 import 'border_box.dart';
 
 /// Size presets for Warcraft cards.
-enum WarcraftCardSize { md, sm }
+enum WarcraftCardSize {
+  /// Medium (default) card size, using the larger base font size.
+  md,
+
+  /// Small card size, using a smaller base font size.
+  sm,
+}
 
 /// Warcraft-themed card with framed background.
 class WarcraftCard extends StatelessWidget {
+  /// Creates a [WarcraftCard] wrapping [child] in a themed 9-slice frame.
   const WarcraftCard({
     super.key,
     required this.child,
@@ -19,14 +26,24 @@ class WarcraftCard extends StatelessWidget {
     this.contentPadding = const EdgeInsets.fromLTRB(62, 56, 62, 44),
   });
 
+  /// The content displayed inside the card frame.
   final Widget child;
+
+  /// The size preset controlling the base font size. Defaults to
+  /// [WarcraftCardSize.md].
   final WarcraftCardSize size;
+
+  /// The maximum width of the card. Defaults to `546`.
   final double maxWidth;
 
   /// Optional minimum height. Left `null` by default so the card sizes to
   /// its actual [child] content instead of reserving dead space.
   final double? minHeight;
+
+  /// The 9-slice insets applied to the card's background asset.
   final EdgeInsets sliceInsets;
+
+  /// The padding applied around [child] inside the card frame.
   final EdgeInsets contentPadding;
 
   @override
@@ -64,14 +81,22 @@ class WarcraftCard extends StatelessWidget {
   }
 }
 
+/// A padded section within a [WarcraftCard], used to build
+/// [WarcraftCardHeader], [WarcraftCardContent], and [WarcraftCardFooter].
 class WarcraftCardSection extends StatelessWidget {
+  /// Creates a [WarcraftCardSection] wrapping [child] with optional
+  /// [padding].
   const WarcraftCardSection({
     super.key,
     required this.child,
     this.padding,
   });
 
+  /// The content displayed within the section.
   final Widget child;
+
+  /// The padding applied around [child]. Defaults to
+  /// `EdgeInsets.symmetric(horizontal: 8, vertical: 6)` when `null`.
   final EdgeInsetsGeometry? padding;
 
   @override
@@ -84,12 +109,15 @@ class WarcraftCardSection extends StatelessWidget {
   }
 }
 
+/// A [WarcraftCardSection] preset for a card's header area.
 class WarcraftCardHeader extends StatelessWidget {
+  /// Creates a [WarcraftCardHeader] wrapping [child].
   const WarcraftCardHeader({
     super.key,
     required this.child,
   });
 
+  /// The content displayed in the header.
   final Widget child;
 
   @override
@@ -101,12 +129,15 @@ class WarcraftCardHeader extends StatelessWidget {
   }
 }
 
+/// A [WarcraftCardSection] preset for a card's main content area.
 class WarcraftCardContent extends StatelessWidget {
+  /// Creates a [WarcraftCardContent] wrapping [child].
   const WarcraftCardContent({
     super.key,
     required this.child,
   });
 
+  /// The content displayed in the card body.
   final Widget child;
 
   @override
@@ -115,12 +146,15 @@ class WarcraftCardContent extends StatelessWidget {
   }
 }
 
+/// A [WarcraftCardSection] preset for a card's footer area.
 class WarcraftCardFooter extends StatelessWidget {
+  /// Creates a [WarcraftCardFooter] wrapping [child].
   const WarcraftCardFooter({
     super.key,
     required this.child,
   });
 
+  /// The content displayed in the footer.
   final Widget child;
 
   @override

@@ -5,15 +5,41 @@ import '../theme/warcraft_theme.dart';
 import '../theme/warcraft_tokens.dart';
 
 /// Severity/intent variants for [WarcraftToast].
-enum WarcraftToastType { defaultType, success, error, warning, info }
+enum WarcraftToastType {
+  /// Neutral, general-purpose toast with no specific severity.
+  defaultType,
+
+  /// Indicates a successful action or outcome.
+  success,
+
+  /// Indicates a failure or error condition.
+  error,
+
+  /// Indicates a warning or caution.
+  warning,
+
+  /// Indicates an informational message.
+  info,
+}
 
 /// Screen anchor for a stack of toasts.
 enum WarcraftToastPosition {
+  /// Top-left corner of the screen.
   topLeft,
+
+  /// Top-center of the screen.
   topCenter,
+
+  /// Top-right corner of the screen.
   topRight,
+
+  /// Bottom-left corner of the screen.
   bottomLeft,
+
+  /// Bottom-center of the screen.
   bottomCenter,
+
+  /// Bottom-right corner of the screen.
   bottomRight
 }
 
@@ -25,6 +51,8 @@ enum WarcraftToastPosition {
 class WarcraftToast {
   const WarcraftToast._();
 
+  /// Maximum number of toasts stacked at a single [WarcraftToastPosition]
+  /// simultaneously; the oldest toast is evicted once this is exceeded.
   static const int maxStacked = 4;
 
   // Keyed by OverlayState so separate app/test instances (each with their

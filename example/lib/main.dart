@@ -63,16 +63,21 @@ class ComponentShowcase extends StatelessWidget {
       appBar: AppBar(title: const Text('Warcraft UI Components')),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            for (final (title, section) in _sections) ...[
-              Text(title, style: Theme.of(context).textTheme.titleLarge),
-              const SizedBox(height: 8),
-              section,
-              const SizedBox(height: 28),
-            ],
-          ],
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 960),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                for (final (title, section) in _sections) ...[
+                  Text(title, style: Theme.of(context).textTheme.titleLarge),
+                  const SizedBox(height: 8),
+                  section,
+                  const SizedBox(height: 28),
+                ],
+              ],
+            ),
+          ),
         ),
       ),
     );

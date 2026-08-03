@@ -69,5 +69,21 @@ void main() {
       final field = tester.widget<TextField>(find.byType(TextField));
       expect(field.enabled, isFalse);
     });
+
+    testWidgets('maxWidth constrains the rendered width', (tester) async {
+      await tester.pumpWidget(
+        const MaterialApp(
+          home: Scaffold(
+            body: Align(
+              alignment: Alignment.topLeft,
+              child: WarcraftInput(hintText: 'Enter name', maxWidth: 200),
+            ),
+          ),
+        ),
+      );
+
+      final width = tester.getSize(find.byType(WarcraftInput)).width;
+      expect(width, lessThanOrEqualTo(200));
+    });
   });
 }

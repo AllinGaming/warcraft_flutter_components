@@ -51,5 +51,21 @@ void main() {
       final field = tester.widget<TextField>(find.byType(TextField));
       expect(field.maxLines, 3);
     });
+
+    testWidgets('maxWidth constrains the rendered width', (tester) async {
+      await tester.pumpWidget(
+        const MaterialApp(
+          home: Scaffold(
+            body: Align(
+              alignment: Alignment.topLeft,
+              child: WarcraftTextarea(maxWidth: 200),
+            ),
+          ),
+        ),
+      );
+
+      final width = tester.getSize(find.byType(WarcraftTextarea)).width;
+      expect(width, lessThanOrEqualTo(200));
+    });
   });
 }

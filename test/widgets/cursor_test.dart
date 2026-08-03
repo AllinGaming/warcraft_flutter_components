@@ -49,6 +49,29 @@ void main() {
       expect(find.byType(Positioned), findsOneWidget);
     });
 
+    testWidgets('hides the cursor again once the mouse exits', (tester) async {
+      await tester.pumpWidget(
+        const MaterialApp(
+          home: Scaffold(
+            body: WarcraftCursor(child: SizedBox(width: 200, height: 200)),
+          ),
+        ),
+      );
+
+      final gesture = await tester.createGesture(kind: PointerDeviceKind.mouse);
+      await gesture.addPointer(location: Offset.zero);
+      addTearDown(gesture.removePointer);
+      await tester.pump();
+      await gesture.moveTo(tester.getCenter(find.byType(WarcraftCursor)));
+      await tester.pump();
+      expect(find.byType(Positioned), findsOneWidget);
+
+      await gesture.moveTo(const Offset(2000, 2000));
+      await tester.pump();
+
+      expect(find.byType(Positioned), findsNothing);
+    });
+
     testWidgets('uses a custom builder when provided', (tester) async {
       await tester.pumpWidget(
         MaterialApp(

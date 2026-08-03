@@ -4,6 +4,7 @@ import '../theme/warcraft_theme.dart';
 
 /// Warcraft-themed loading spinner.
 class WarcraftSpinner extends StatefulWidget {
+  /// Creates a [WarcraftSpinner].
   const WarcraftSpinner({
     super.key,
     this.size = 48,
@@ -12,8 +13,13 @@ class WarcraftSpinner extends StatefulWidget {
     this.semanticLabel = 'Loading',
   });
 
+  /// The width and height of the spinner, in logical pixels.
   final double size;
+
+  /// The primary color of the spinning ring and rune accents.
   final Color color;
+
+  /// The thickness of the spinner's ring strokes.
   final double strokeWidth;
 
   /// Announced to assistive technology while the spinner is shown. Pass

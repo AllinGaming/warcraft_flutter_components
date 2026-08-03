@@ -6,13 +6,26 @@ import '../theme/warcraft_tokens.dart';
 import 'border_box.dart';
 
 /// Visual variants for Warcraft buttons.
-enum WarcraftButtonVariant { defaultVariant, frame }
+enum WarcraftButtonVariant {
+  /// Plain button background without a decorative frame.
+  defaultVariant,
+
+  /// Button background with a decorative frame overlay.
+  frame,
+}
 
 /// Size presets for Warcraft buttons.
-enum WarcraftButtonSize { md, sm }
+enum WarcraftButtonSize {
+  /// Standard-sized button.
+  md,
+
+  /// Compact, smaller button.
+  sm,
+}
 
 /// Warcraft-themed button with frame variants and press animation.
 class WarcraftButton extends StatefulWidget {
+  /// Creates a [WarcraftButton].
   const WarcraftButton({
     super.key,
     required this.child,
@@ -24,14 +37,30 @@ class WarcraftButton extends StatefulWidget {
     this.focusNode,
   });
 
+  /// Content displayed inside the button.
   final Widget child;
+
+  /// Called when the button is tapped or activated via keyboard (Enter or
+  /// Space); the button is treated as disabled when this is null.
   final VoidCallback? onPressed;
+
+  /// Visual style to render the button with.
   final WarcraftButtonVariant variant;
+
+  /// Size preset controlling padding and text/icon scale.
   final WarcraftButtonSize size;
+
+  /// Custom content padding; overrides the default padding for [size] when
+  /// set.
   final EdgeInsetsGeometry? padding;
+
+  /// Maximum width the button is constrained to.
   final double maxWidth;
+
+  /// Optional focus node used for keyboard focus and activation.
   final FocusNode? focusNode;
 
+  /// Whether the button responds to input; true when [onPressed] is set.
   bool get enabled => onPressed != null;
 
   @override

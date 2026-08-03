@@ -7,10 +7,20 @@ import '../theme/warcraft_tokens.dart';
 import 'border_box.dart';
 
 /// Icon variants for Warcraft accordion headers.
-enum WarcraftAccordionIcon { sword, shield, runeStone }
+enum WarcraftAccordionIcon {
+  /// A crossed-swords icon.
+  sword,
+
+  /// A shield icon.
+  shield,
+
+  /// A rune stone icon.
+  runeStone
+}
 
 /// Model for a single accordion item.
 class WarcraftAccordionItem {
+  /// Creates a [WarcraftAccordionItem].
   WarcraftAccordionItem({
     required this.title,
     required this.content,
@@ -18,8 +28,13 @@ class WarcraftAccordionItem {
     this.isExpanded = false,
   });
 
+  /// The text shown in the item's header.
   final String title;
+
+  /// The widget shown in the item's body when it is expanded.
   final Widget content;
+
+  /// The icon shown in the item's header.
   final WarcraftAccordionIcon icon;
 
   /// The item's initial expand state. Only read once, when the enclosing
@@ -31,11 +46,13 @@ class WarcraftAccordionItem {
 
 /// Warcraft-themed accordion with animated expand/collapse.
 class WarcraftAccordion extends StatefulWidget {
+  /// Creates a [WarcraftAccordion].
   const WarcraftAccordion({
     super.key,
     required this.items,
   });
 
+  /// The items rendered as expandable sections, in order.
   final List<WarcraftAccordionItem> items;
 
   @override
@@ -66,12 +83,14 @@ class _WarcraftAccordionState extends State<WarcraftAccordion> {
   @override
   Widget build(BuildContext context) {
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: List.generate(widget.items.length, (index) {
         final item = widget.items[index];
         final isExpanded = _expanded[index];
         return Padding(
           padding: const EdgeInsets.only(bottom: WarcraftTokens.spacingSm),
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               GestureDetector(
                 onTap: () {
@@ -161,7 +180,7 @@ class _Body extends StatelessWidget {
     return WarcraftBorderBox(
       asset: WarcraftAssets.accordionContentBg,
       sliceInsets: const EdgeInsets.all(6),
-      padding: const EdgeInsets.fromLTRB(16, 12, 16, 18),
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
       child: DefaultTextStyle.merge(
         style: WarcraftTheme.baseTextStyle(context).copyWith(
           color: WarcraftColors.cardForeground,

@@ -3,10 +3,26 @@ import '../theme/warcraft_theme.dart';
 import '../theme/warcraft_tokens.dart';
 
 /// Tooltip rarity variants.
-enum WarcraftTooltipVariant { defaultVariant, uncommon, rare, epic, legendary }
+enum WarcraftTooltipVariant {
+  /// Standard, non-rarity tooltip styling.
+  defaultVariant,
+
+  /// Uncommon (green) rarity styling.
+  uncommon,
+
+  /// Rare (blue) rarity styling.
+  rare,
+
+  /// Epic (purple) rarity styling.
+  epic,
+
+  /// Legendary (orange) rarity styling.
+  legendary,
+}
 
 /// Warcraft-styled tooltip with rarity colors.
 class WarcraftTooltip extends StatelessWidget {
+  /// Creates a [WarcraftTooltip].
   const WarcraftTooltip({
     super.key,
     required this.child,
@@ -16,10 +32,20 @@ class WarcraftTooltip extends StatelessWidget {
     this.waitDuration = Duration.zero,
   });
 
+  /// Widget that triggers the tooltip when hovered, long-pressed, or
+  /// focused.
   final Widget child;
+
+  /// Bold heading text shown at the top of the tooltip.
   final String title;
+
+  /// Optional secondary text shown below [title].
   final String? body;
+
+  /// Rarity styling applied to the tooltip's border and title color.
   final WarcraftTooltipVariant variant;
+
+  /// Delay before the tooltip becomes visible after a hover/long-press.
   final Duration waitDuration;
 
   @override

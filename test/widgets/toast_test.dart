@@ -118,5 +118,31 @@ void main() {
         expect(tester.takeException(), isNull);
       }
     });
+
+    testWidgets('renders for every faction without throwing', (tester) async {
+      late BuildContext capturedContext;
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Builder(
+            builder: (context) {
+              capturedContext = context;
+              return const Scaffold(body: SizedBox());
+            },
+          ),
+        ),
+      );
+
+      for (final faction in WarcraftFaction.values) {
+        WarcraftToast.show(
+          capturedContext,
+          message: 'Message for $faction',
+          faction: faction,
+          duration: const Duration(seconds: 30),
+        );
+        await tester.pumpAndSettle();
+        expect(tester.takeException(), isNull);
+      }
+    });
   });
 }

@@ -36,6 +36,28 @@ void main() {
       }
     });
 
+    testWidgets('renders the provided image instead of the fallback',
+        (tester) async {
+      await tester.pumpWidget(
+        const MaterialApp(
+          home: Scaffold(
+            body: WarcraftAvatar(
+              image: AssetImage(
+                WarcraftAssets.avatarDefault,
+                package: 'warcraft_flutter_components',
+              ),
+              fallback: Text('U'),
+            ),
+          ),
+        ),
+      );
+      await tester.pump();
+
+      expect(find.byType(Image), findsWidgets);
+      expect(find.text('U'), findsNothing);
+      expect(tester.takeException(), isNull);
+    });
+
     testWidgets('renders for every faction without throwing', (tester) async {
       for (final faction in WarcraftFaction.values) {
         await tester.pumpWidget(

@@ -64,5 +64,71 @@ void main() {
       );
       expect(button.enabled, isFalse);
     });
+
+    testWidgets('tapping Previous invokes onPageChanged with the prior page',
+        (tester) async {
+      int? tapped;
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: WarcraftPagination(
+              currentPage: 3,
+              pageCount: 5,
+              onPageChanged: (page) => tapped = page,
+            ),
+          ),
+        ),
+      );
+
+      await tester.tap(find.text('Previous'));
+      await tester.pump();
+
+      expect(tapped, 2);
+    });
+
+    testWidgets('tapping Next invokes onPageChanged with the following page',
+        (tester) async {
+      int? tapped;
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: WarcraftPagination(
+              currentPage: 3,
+              pageCount: 5,
+              onPageChanged: (page) => tapped = page,
+            ),
+          ),
+        ),
+      );
+
+      await tester.tap(find.text('Next'));
+      await tester.pump();
+
+      expect(tapped, 4);
+    });
+
+    testWidgets('the visible page window shifts left near the last page',
+        (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: WarcraftPagination(
+              currentPage: 10,
+              pageCount: 10,
+              onPageChanged: (_) {},
+            ),
+          ),
+        ),
+      );
+
+      // The window should clamp to the last 3 pages (8, 9, 10) rather than
+      // overflow past pageCount.
+      expect(find.text('8'), findsOneWidget);
+      expect(find.text('9'), findsOneWidget);
+      expect(find.text('10'), findsOneWidget);
+      expect(find.text('11'), findsNothing);
+    });
   });
 }

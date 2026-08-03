@@ -153,5 +153,41 @@ void main() {
       // distance of the trigger, not at an arbitrary unrelated point.
       expect((submenuRect.top - triggerRect.top).abs(), lessThan(400));
     });
+
+    testWidgets('selecting a nested submenu action invokes its callback',
+        (tester) async {
+      var selected = 0;
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: WarcraftDropdownMenu(
+              items: [
+                WarcraftMenuSubmenu(
+                  label: 'More options',
+                  children: [
+                    WarcraftMenuAction(
+                      label: 'Nested action',
+                      onSelected: () => selected++,
+                    ),
+                  ],
+                ),
+              ],
+              child: const Text('Open menu'),
+            ),
+          ),
+        ),
+      );
+
+      await tester.tap(find.text('Open menu'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('More options'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Nested action'));
+      await tester.pumpAndSettle();
+
+      expect(selected, 1);
+      expect(find.text('Nested action'), findsNothing);
+    });
   });
 }

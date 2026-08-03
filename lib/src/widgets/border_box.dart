@@ -6,11 +6,16 @@ import 'package:flutter/scheduler.dart';
 /// horizontal 3-slice) frame around [child].
 ///
 /// This is the package's shared image-frame primitive: pass
-/// `sliceInsets: EdgeInsets.only(left: capWidth, right: capWidth)` to get a
-/// horizontal-only cap/stretch/cap layout (used by [WarcraftInput] and
-/// [WarcraftTextarea]), or full insets on every side for a true 9-slice
-/// panel (used by [WarcraftCard], [WarcraftButton], etc.).
+/// `sliceInsets: EdgeInsets.symmetric(horizontal: capWidth, vertical:
+/// capHeight)`, matched to the source artwork's real corner/edge thickness
+/// in pixels, to get a true 9-slice panel (used by [WarcraftInput],
+/// [WarcraftTextarea], [WarcraftCard], [WarcraftButton], etc.) — a zero
+/// inset on an axis instead stretches that whole axis uniformly, which
+/// only looks right if the artwork has no border decoration to preserve
+/// along it.
 class WarcraftBorderBox extends StatefulWidget {
+  /// Creates a 9-slice (or 3-slice) frame around [child] using [asset],
+  /// sliced according to [sliceInsets].
   const WarcraftBorderBox({
     super.key,
     required this.asset,
@@ -24,14 +29,38 @@ class WarcraftBorderBox extends StatefulWidget {
     this.tileCenterInsets = EdgeInsets.zero,
   });
 
+  /// The package asset path of the frame image to slice and paint.
   final String asset;
+
+  /// The edge insets (in source-image pixels) that define the fixed
+  /// corner/edge caps versus the stretchable center of [asset].
   final EdgeInsets sliceInsets;
+
+  /// The content rendered inside the frame.
   final Widget child;
+
+  /// Padding applied between the frame and [child].
   final EdgeInsetsGeometry? padding;
+
+  /// If set, clips the entire painted frame to this radius.
   final BorderRadius? borderRadius;
+
+  /// If set, draws a [BoxDecoration] shadow behind the painted frame.
   final List<BoxShadow>? boxShadow;
+
+  /// If set, aligns [child] within the padded content area instead of
+  /// letting it fill the available space.
   final AlignmentGeometry? alignment;
+
+  /// Whether the center slice is tiled at native resolution instead of
+  /// being stretched to fill the available space.
   final bool tileCenter;
+
+  /// Extra insets (in source-image pixels), applied on top of
+  /// [sliceInsets], that shrink the region of the center slice used as the
+  /// tile source and destination. Only takes effect when [tileCenter] is
+  /// true; it lets the tiled pattern avoid bleeding into pixels near the
+  /// stretched center's own edges.
   final EdgeInsets tileCenterInsets;
 
   @override

@@ -5,19 +5,59 @@ import '../theme/warcraft_tokens.dart';
 import 'border_box.dart';
 
 /// Visual variants for Warcraft badges.
-enum WarcraftBadgeVariant { defaultVariant, secondary, destructive, outline }
+enum WarcraftBadgeVariant {
+  /// Default gold/amber styling with the ornate carved-frame asset.
+  defaultVariant,
+
+  /// Muted styling for lower-emphasis badges.
+  secondary,
+
+  /// Red-tinted styling for warning or destructive states.
+  destructive,
+
+  /// Minimal outlined styling without the ornate frame asset.
+  outline,
+}
 
 /// Size presets for badges.
-enum WarcraftBadgeSize { sm, md, lg }
+enum WarcraftBadgeSize {
+  /// Small badge size.
+  sm,
+
+  /// Medium (default) badge size.
+  md,
+
+  /// Large badge size.
+  lg,
+}
 
 /// Faction tinting for badges.
-enum WarcraftBadgeFaction { none, alliance, horde }
+enum WarcraftBadgeFaction {
+  /// No faction tint applied.
+  none,
+
+  /// Alliance blue background tint.
+  alliance,
+
+  /// Horde red background tint.
+  horde,
+}
 
 /// Shape variants for badges.
-enum WarcraftBadgeShape { defaultShape, shield, banner }
+enum WarcraftBadgeShape {
+  /// Default rounded-rectangle shape.
+  defaultShape,
+
+  /// Shield-like shape with an asymmetric rounded bottom.
+  shield,
+
+  /// Banner shape with notched bottom corners.
+  banner,
+}
 
 /// Warcraft-themed badge with frame and optional faction tint.
 class WarcraftBadge extends StatelessWidget {
+  /// Creates a [WarcraftBadge].
   const WarcraftBadge({
     super.key,
     required this.child,
@@ -29,12 +69,26 @@ class WarcraftBadge extends StatelessWidget {
     this.sliceInsets = const EdgeInsets.all(2),
   });
 
+  /// The content displayed inside the badge.
   final Widget child;
+
+  /// The visual style variant of the badge. See [WarcraftBadgeVariant].
   final WarcraftBadgeVariant variant;
+
+  /// The size preset of the badge. See [WarcraftBadgeSize].
   final WarcraftBadgeSize size;
+
+  /// Optional faction tint applied to the badge background. See
+  /// [WarcraftBadgeFaction].
   final WarcraftBadgeFaction faction;
+
+  /// The shape of the badge. See [WarcraftBadgeShape].
   final WarcraftBadgeShape shape;
+
+  /// The maximum width the badge is allowed to grow to.
   final double maxWidth;
+
+  /// The nine-slice insets used when rendering the badge's frame asset.
   final EdgeInsets sliceInsets;
 
   @override

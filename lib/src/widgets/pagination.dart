@@ -5,6 +5,7 @@ import '../theme/warcraft_tokens.dart';
 
 /// Warcraft-themed pagination with ellipsis and navigation buttons.
 class WarcraftPagination extends StatelessWidget {
+  /// Creates a [WarcraftPagination].
   const WarcraftPagination({
     super.key,
     required this.currentPage,
@@ -13,9 +14,20 @@ class WarcraftPagination extends StatelessWidget {
     this.maxVisiblePages = 3,
   });
 
+  /// The currently selected page, 1-based.
   final int currentPage;
+
+  /// The total number of pages available.
   final int pageCount;
+
+  /// Called with the new page number when a page button, or the
+  /// previous/next button, is pressed.
   final ValueChanged<int> onPageChanged;
+
+  /// The maximum number of page buttons shown at once around
+  /// [currentPage]. Pages that fall outside this window are collapsed
+  /// into an ellipsis indicator on the corresponding side instead of
+  /// being rendered individually.
   final int maxVisiblePages;
 
   @override
@@ -162,15 +174,20 @@ class _Ellipsis extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final dots = List.filled(count, '♦').join(' ');
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(10, 8, 10, 0),
-      child: Text(
-        dots,
-        style: WarcraftTheme.baseTextStyle(context).copyWith(
-          color: const Color(0xFFF59E0B),
-          fontWeight: FontWeight.bold,
-          letterSpacing: 2,
-          fontSize: WarcraftTokens.typeXs,
+    return ConstrainedBox(
+      constraints: const BoxConstraints(minHeight: WarcraftTokens.minTapTarget),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 10),
+        child: Center(
+          child: Text(
+            dots,
+            style: WarcraftTheme.baseTextStyle(context).copyWith(
+              color: const Color(0xFFF59E0B),
+              fontWeight: FontWeight.bold,
+              letterSpacing: 2,
+              fontSize: WarcraftTokens.typeXs,
+            ),
+          ),
         ),
       ),
     );

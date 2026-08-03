@@ -9,6 +9,7 @@ typedef WarcraftCheckboxChanged = void Function(bool value);
 
 /// Warcraft-themed checkbox with faction skins.
 class WarcraftCheckbox extends StatelessWidget {
+  /// Creates a [WarcraftCheckbox].
   const WarcraftCheckbox({
     super.key,
     required this.value,
@@ -18,10 +19,19 @@ class WarcraftCheckbox extends StatelessWidget {
     this.enabled = true,
   });
 
+  /// Whether the checkbox is currently checked.
   final bool value;
+
+  /// Called with the toggled value when the checkbox is tapped.
   final WarcraftCheckboxChanged? onChanged;
+
+  /// The faction skin used to render the checkbox artwork.
   final WarcraftFaction faction;
+
+  /// Optional label displayed next to the checkbox.
   final Widget? label;
+
+  /// Whether the checkbox responds to user interaction.
   final bool enabled;
 
   @override

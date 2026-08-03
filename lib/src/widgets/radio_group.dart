@@ -7,6 +7,8 @@ typedef WarcraftRadioChanged<T> = void Function(T value);
 
 /// Simple radio group layout for Warcraft radios.
 class WarcraftRadioGroup<T> extends StatelessWidget {
+  /// Creates a group that lays out [children] (typically [WarcraftRadio]
+  /// widgets) along [direction] with [spacing] between them.
   const WarcraftRadioGroup({
     super.key,
     required this.children,
@@ -14,8 +16,13 @@ class WarcraftRadioGroup<T> extends StatelessWidget {
     this.spacing = WarcraftTokens.spacingMd,
   });
 
+  /// The radios (or other widgets) to lay out.
   final List<Widget> children;
+
+  /// The axis along which [children] are arranged.
   final Axis direction;
+
+  /// The gap between consecutive [children], in logical pixels.
   final double spacing;
 
   @override
@@ -39,6 +46,8 @@ class WarcraftRadioGroup<T> extends StatelessWidget {
 
 /// Warcraft-styled radio control.
 class WarcraftRadio<T> extends StatelessWidget {
+  /// Creates a Warcraft-styled radio button representing [value] within a
+  /// group currently set to [groupValue].
   const WarcraftRadio({
     super.key,
     required this.value,
@@ -48,10 +57,23 @@ class WarcraftRadio<T> extends StatelessWidget {
     this.enabled = true,
   });
 
+  /// The value this radio button represents.
   final T value;
+
+  /// The currently selected value for the enclosing group.
+  ///
+  /// This radio renders as selected when [value] equals [groupValue].
   final T groupValue;
+
+  /// Called with [value] when the radio is tapped while [enabled] is true.
+  ///
+  /// If null, the radio is treated as non-interactive.
   final WarcraftRadioChanged<T>? onChanged;
+
+  /// Optional label rendered to the right of the radio socket.
   final Widget? label;
+
+  /// Whether the radio responds to input and renders at full opacity.
   final bool enabled;
 
   bool get _selected => value == groupValue;
