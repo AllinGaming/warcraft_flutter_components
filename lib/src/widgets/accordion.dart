@@ -129,7 +129,8 @@ class _Header extends StatelessWidget {
               _iconAsset(item.icon),
               width: 16,
               height: 16,
-              colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
+              colorFilter:
+                  const ColorFilter.mode(Colors.white, BlendMode.srcIn),
               package: 'warcraft_flutter_components',
             ),
           ),

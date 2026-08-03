@@ -64,12 +64,15 @@ class _WarcraftButtonState extends State<WarcraftButton> {
       button: true,
       enabled: widget.enabled,
       child: MouseRegion(
-        cursor: widget.enabled ? SystemMouseCursors.click : SystemMouseCursors.basic,
+        cursor: widget.enabled
+            ? SystemMouseCursors.click
+            : SystemMouseCursors.basic,
         child: Focus(
           focusNode: widget.focusNode,
           onKeyEvent: (node, event) {
-            final isActivationKey = event.logicalKey == LogicalKeyboardKey.enter ||
-                event.logicalKey == LogicalKeyboardKey.space;
+            final isActivationKey =
+                event.logicalKey == LogicalKeyboardKey.enter ||
+                    event.logicalKey == LogicalKeyboardKey.space;
             if (widget.enabled && isActivationKey && event is KeyDownEvent) {
               widget.onPressed?.call();
               return KeyEventResult.handled;
@@ -80,9 +83,12 @@ class _WarcraftButtonState extends State<WarcraftButton> {
             constraints: BoxConstraints(maxWidth: widget.maxWidth),
             child: GestureDetector(
               behavior: HitTestBehavior.opaque,
-              onTapDown: widget.enabled ? (_) => setState(() => _pressed = true) : null,
-              onTapCancel:
-                  widget.enabled ? () => setState(() => _pressed = false) : null,
+              onTapDown: widget.enabled
+                  ? (_) => setState(() => _pressed = true)
+                  : null,
+              onTapCancel: widget.enabled
+                  ? () => setState(() => _pressed = false)
+                  : null,
               onTapUp: widget.enabled
                   ? (_) => setState(() => _pressed = false)
                   : null,
@@ -97,10 +103,13 @@ class _WarcraftButtonState extends State<WarcraftButton> {
                     scale: _pressed ? 0.97 : 1,
                     duration: const Duration(milliseconds: 80),
                     child: Opacity(
-                      opacity: widget.enabled ? 1 : WarcraftTokens.disabledOpacity,
+                      opacity:
+                          widget.enabled ? 1 : WarcraftTokens.disabledOpacity,
                       child: ColorFiltered(
                         colorFilter: ColorFilter.mode(
-                          _pressed ? Colors.black.withAlpha(51) : Colors.transparent,
+                          _pressed
+                              ? Colors.black.withAlpha(51)
+                              : Colors.transparent,
                           BlendMode.darken,
                         ),
                         child: WarcraftBorderBox(
@@ -121,7 +130,8 @@ class _WarcraftButtonState extends State<WarcraftButton> {
     );
   }
 
-  String _assetForVariant(WarcraftButtonVariant variant, WarcraftButtonSize size) {
+  String _assetForVariant(
+      WarcraftButtonVariant variant, WarcraftButtonSize size) {
     switch (variant) {
       case WarcraftButtonVariant.frame:
         return size == WarcraftButtonSize.sm

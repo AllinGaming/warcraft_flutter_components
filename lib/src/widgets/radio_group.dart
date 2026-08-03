@@ -32,7 +32,8 @@ class WarcraftRadioGroup<T> extends StatelessWidget {
 
     return direction == Axis.horizontal
         ? Wrap(children: content)
-        : Column(crossAxisAlignment: CrossAxisAlignment.start, children: content);
+        : Column(
+            crossAxisAlignment: CrossAxisAlignment.start, children: content);
   }
 }
 
@@ -83,7 +84,10 @@ class WarcraftRadio<T> extends StatelessWidget {
                     stops: [0, 1],
                   ),
                   boxShadow: const [
-                    BoxShadow(color: Colors.black54, blurRadius: 3, offset: Offset(0, 1)),
+                    BoxShadow(
+                        color: Colors.black54,
+                        blurRadius: 3,
+                        offset: Offset(0, 1)),
                   ],
                 ),
                 child: AnimatedContainer(
@@ -91,7 +95,9 @@ class WarcraftRadio<T> extends StatelessWidget {
                   margin: const EdgeInsets.all(4),
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: _selected ? const Color(0xFFD97706) : Colors.transparent,
+                    color: _selected
+                        ? const Color(0xFFD97706)
+                        : Colors.transparent,
                     boxShadow: _selected
                         ? const [
                             BoxShadow(color: Color(0xFFFFE39C), blurRadius: 6),

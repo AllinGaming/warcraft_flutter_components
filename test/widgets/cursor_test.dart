@@ -54,7 +54,8 @@ void main() {
         MaterialApp(
           home: Scaffold(
             body: WarcraftCursor(
-              builder: (context, faction) => const Icon(Icons.pets, key: Key('custom-cursor')),
+              builder: (context, faction) =>
+                  const Icon(Icons.pets, key: Key('custom-cursor')),
               child: const SizedBox(width: 200, height: 200),
             ),
           ),

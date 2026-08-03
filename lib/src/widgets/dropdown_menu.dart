@@ -169,7 +169,8 @@ class WarcraftDropdownMenu extends StatelessWidget {
                         ),
                       ),
                     ),
-                    const Icon(Icons.chevron_right, size: 16, color: Color(0xFFF59E0B)),
+                    const Icon(Icons.chevron_right,
+                        size: 16, color: Color(0xFFF59E0B)),
                   ],
                 );
               },
@@ -222,7 +223,9 @@ class WarcraftDropdownMenu extends StatelessWidget {
             child: Row(
               children: [
                 Icon(
-                  selected ? Icons.radio_button_checked : Icons.radio_button_off,
+                  selected
+                      ? Icons.radio_button_checked
+                      : Icons.radio_button_off,
                   size: 16,
                   color: WarcraftColors.amber400,
                 ),
@@ -268,12 +271,14 @@ class WarcraftDropdownMenu extends StatelessWidget {
     BuildContext itemContext,
     WarcraftMenuSubmenu item,
   ) {
-    final overlayBox = Overlay.of(context).context.findRenderObject()! as RenderBox;
+    final overlayBox =
+        Overlay.of(context).context.findRenderObject()! as RenderBox;
     final itemBox = itemContext.findRenderObject()! as RenderBox;
     final position = RelativeRect.fromRect(
       Rect.fromPoints(
         itemBox.localToGlobal(Offset.zero, ancestor: overlayBox),
-        itemBox.localToGlobal(itemBox.size.bottomRight(Offset.zero), ancestor: overlayBox),
+        itemBox.localToGlobal(itemBox.size.bottomRight(Offset.zero),
+            ancestor: overlayBox),
       ),
       Offset.zero & overlayBox.size,
     );

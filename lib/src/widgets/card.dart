@@ -39,7 +39,8 @@ class WarcraftCard extends StatelessWidget {
       alignment: Alignment.centerLeft,
       heightFactor: 1,
       child: ConstrainedBox(
-        constraints: BoxConstraints(maxWidth: maxWidth, minHeight: minHeight ?? 0),
+        constraints:
+            BoxConstraints(maxWidth: maxWidth, minHeight: minHeight ?? 0),
         child: SizedBox(
           width: double.infinity,
           child: DefaultTextStyle.merge(
@@ -76,7 +77,8 @@ class WarcraftCardSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: padding ?? const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+      padding:
+          padding ?? const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
       child: child,
     );
   }

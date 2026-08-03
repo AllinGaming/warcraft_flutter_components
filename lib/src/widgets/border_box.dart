@@ -65,7 +65,8 @@ class _WarcraftBorderBoxState extends State<WarcraftBorderBox> {
   }
 
   void _resolveImage() {
-    final provider = AssetImage(widget.asset, package: 'warcraft_flutter_components');
+    final provider =
+        AssetImage(widget.asset, package: 'warcraft_flutter_components');
     final stream = provider.resolve(const ImageConfiguration());
 
     // The stream key is stable for an unchanged asset/configuration, so
@@ -88,7 +89,8 @@ class _WarcraftBorderBoxState extends State<WarcraftBorderBox> {
           _image = info.image;
         });
         if (previous != null) {
-          SchedulerBinding.instance.addPostFrameCallback((_) => previous.dispose());
+          SchedulerBinding.instance
+              .addPostFrameCallback((_) => previous.dispose());
         }
       },
       onError: (exception, stackTrace) {
@@ -97,7 +99,8 @@ class _WarcraftBorderBoxState extends State<WarcraftBorderBox> {
             exception: exception,
             stack: stackTrace,
             library: 'warcraft_flutter_components',
-            context: ErrorDescription('resolving WarcraftBorderBox asset ${widget.asset}'),
+            context: ErrorDescription(
+                'resolving WarcraftBorderBox asset ${widget.asset}'),
           ),
         );
         if (mounted) {
@@ -223,8 +226,10 @@ class _NineSlicePainter extends CustomPainter {
     final innerRight = tileCenterInsets.right;
     final innerBottom = tileCenterInsets.bottom;
 
-    final tileSrcWidth = (centerWidth - innerLeft - innerRight).clamp(1.0, centerWidth);
-    final tileSrcHeight = (centerHeight - innerTop - innerBottom).clamp(1.0, centerHeight);
+    final tileSrcWidth =
+        (centerWidth - innerLeft - innerRight).clamp(1.0, centerWidth);
+    final tileSrcHeight =
+        (centerHeight - innerTop - innerBottom).clamp(1.0, centerHeight);
 
     final srcTile = Rect.fromLTWH(
       srcCenter.left + innerLeft,

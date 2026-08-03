@@ -29,7 +29,10 @@ class WarcraftLabel extends StatelessWidget {
           ? WarcraftColors.amber200.withAlpha(153)
           : WarcraftColors.amber200,
       shadows: variant == WarcraftLabelVariant.defaultVariant
-          ? [Shadow(color: WarcraftColors.amber400.withAlpha(64), blurRadius: 6)]
+          ? [
+              Shadow(
+                  color: WarcraftColors.amber400.withAlpha(64), blurRadius: 6)
+            ]
           : const [],
     );
 

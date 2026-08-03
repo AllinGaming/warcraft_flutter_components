@@ -63,11 +63,14 @@ class _WarcraftSkeletonState extends State<WarcraftSkeleton>
           child: LayoutBuilder(
             builder: (context, constraints) {
               final sweepWidth = widget.width ??
-                  (constraints.maxWidth.isFinite ? constraints.maxWidth : 200.0);
+                  (constraints.maxWidth.isFinite
+                      ? constraints.maxWidth
+                      : 200.0);
               return Stack(
                 fit: StackFit.expand,
                 children: [
-                  Container(decoration: BoxDecoration(gradient: _baseGradient())),
+                  Container(
+                      decoration: BoxDecoration(gradient: _baseGradient())),
                   AnimatedBuilder(
                     animation: _controller,
                     builder: (_, __) {

@@ -8,7 +8,14 @@ import '../theme/warcraft_tokens.dart';
 enum WarcraftToastType { defaultType, success, error, warning, info }
 
 /// Screen anchor for a stack of toasts.
-enum WarcraftToastPosition { topLeft, topCenter, topRight, bottomLeft, bottomCenter, bottomRight }
+enum WarcraftToastPosition {
+  topLeft,
+  topCenter,
+  topRight,
+  bottomLeft,
+  bottomCenter,
+  bottomRight
+}
 
 /// Warcraft-themed transient notification, shown via the static [show] API.
 ///
@@ -22,8 +29,8 @@ class WarcraftToast {
 
   // Keyed by OverlayState so separate app/test instances (each with their
   // own Overlay) never share or leak toast state into one another.
-  static final Map<OverlayState, Map<WarcraftToastPosition, GlobalKey<_ToastStackState>>>
-      _stacks = {};
+  static final Map<OverlayState,
+      Map<WarcraftToastPosition, GlobalKey<_ToastStackState>>> _stacks = {};
 
   /// Shows a toast anchored at [position]. [duration] controls how long it
   /// stays visible before auto-dismissing; tapping a toast dismisses it
@@ -43,7 +50,8 @@ class WarcraftToast {
     if (positions[position] == null) {
       positions[position] = key;
       overlay.insert(
-        OverlayEntry(builder: (context) => _ToastStack(key: key, position: position)),
+        OverlayEntry(
+            builder: (context) => _ToastStack(key: key, position: position)),
       );
     }
 
@@ -80,7 +88,8 @@ class _ToastData {
 }
 
 class _ToastStack extends StatefulWidget {
-  const _ToastStack({required GlobalKey<_ToastStackState> super.key, required this.position});
+  const _ToastStack(
+      {required GlobalKey<_ToastStackState> super.key, required this.position});
 
   final WarcraftToastPosition position;
 
@@ -107,7 +116,8 @@ class _ToastStackState extends State<_ToastStack> {
       _removeAt(0, animate: false);
     }
 
-    final data = _ToastData(message: message, type: type, faction: faction, duration: duration);
+    final data = _ToastData(
+        message: message, type: type, faction: faction, duration: duration);
     _items.add(data);
     _listKey.currentState?.insertItem(
       _items.length - 1,
@@ -126,7 +136,8 @@ class _ToastStackState extends State<_ToastStack> {
     data.timer?.cancel();
     _listKey.currentState?.removeItem(
       index,
-      (context, animation) => animate ? _buildToast(data, animation) : const SizedBox.shrink(),
+      (context, animation) =>
+          animate ? _buildToast(data, animation) : const SizedBox.shrink(),
       duration: animate ? const Duration(milliseconds: 200) : Duration.zero,
     );
   }
@@ -173,7 +184,8 @@ class _ToastStackState extends State<_ToastStack> {
             key: _listKey,
             shrinkWrap: true,
             reverse: !_isTop,
-            itemBuilder: (context, index, animation) => _buildToast(_items[index], animation),
+            itemBuilder: (context, index, animation) =>
+                _buildToast(_items[index], animation),
           ),
         ),
       ),
@@ -219,7 +231,8 @@ class _WarcraftToastCard extends StatelessWidget {
             borderRadius: BorderRadius.circular(8),
             border: Border.all(color: accent, width: 1.5),
             boxShadow: const [
-              BoxShadow(color: Colors.black87, blurRadius: 16, offset: Offset(0, 4)),
+              BoxShadow(
+                  color: Colors.black87, blurRadius: 16, offset: Offset(0, 4)),
             ],
           ),
           child: Padding(

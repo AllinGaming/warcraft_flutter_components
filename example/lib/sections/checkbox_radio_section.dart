@@ -42,7 +42,8 @@ class _CheckboxRadioSectionState extends State<CheckboxRadioSection> {
           ],
         ),
         const SizedBox(height: 20),
-        const Text('Vertical radio group', style: TextStyle(color: Colors.white70)),
+        const Text('Vertical radio group',
+            style: TextStyle(color: Colors.white70)),
         const SizedBox(height: 8),
         WarcraftRadioGroup<String>(
           children: [
@@ -67,7 +68,8 @@ class _CheckboxRadioSectionState extends State<CheckboxRadioSection> {
           ],
         ),
         const SizedBox(height: 20),
-        const Text('Horizontal radio group', style: TextStyle(color: Colors.white70)),
+        const Text('Horizontal radio group',
+            style: TextStyle(color: Colors.white70)),
         const SizedBox(height: 8),
         WarcraftRadioGroup<String>(
           direction: Axis.horizontal,

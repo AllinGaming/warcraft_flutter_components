@@ -68,8 +68,7 @@ void main() {
       expect(size.height, lessThan(100));
     });
 
-    testWidgets('swapping to a different asset does not throw',
-        (tester) async {
+    testWidgets('swapping to a different asset does not throw', (tester) async {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(

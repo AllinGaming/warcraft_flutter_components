@@ -15,7 +15,8 @@ class WarcraftTabs extends StatefulWidget {
     this.initialIndex = 0,
     this.orientation = Axis.horizontal,
     this.onChanged,
-  }) : assert(labels.length == contents.length, 'labels and contents must match');
+  }) : assert(
+            labels.length == contents.length, 'labels and contents must match');
 
   final List<String> labels;
   final List<Widget> contents;

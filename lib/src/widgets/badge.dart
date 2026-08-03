@@ -6,10 +6,13 @@ import 'border_box.dart';
 
 /// Visual variants for Warcraft badges.
 enum WarcraftBadgeVariant { defaultVariant, secondary, destructive, outline }
+
 /// Size presets for badges.
 enum WarcraftBadgeSize { sm, md, lg }
+
 /// Faction tinting for badges.
 enum WarcraftBadgeFaction { none, alliance, horde }
+
 /// Shape variants for badges.
 enum WarcraftBadgeShape { defaultShape, shield, banner }
 
@@ -137,7 +140,9 @@ class WarcraftBadge extends StatelessWidget {
       case WarcraftBadgeVariant.destructive:
         return [Shadow(color: Colors.redAccent.withAlpha(102), blurRadius: 8)];
       case WarcraftBadgeVariant.defaultVariant:
-        return [Shadow(color: WarcraftColors.amber400.withAlpha(102), blurRadius: 8)];
+        return [
+          Shadow(color: WarcraftColors.amber400.withAlpha(102), blurRadius: 8)
+        ];
       default:
         return const [];
     }
@@ -146,7 +151,8 @@ class WarcraftBadge extends StatelessWidget {
   BorderRadius _borderRadius() {
     switch (shape) {
       case WarcraftBadgeShape.shield:
-        return const BorderRadius.vertical(top: Radius.circular(4), bottom: Radius.circular(12));
+        return const BorderRadius.vertical(
+            top: Radius.circular(4), bottom: Radius.circular(12));
       case WarcraftBadgeShape.banner:
         return BorderRadius.zero;
       case WarcraftBadgeShape.defaultShape:

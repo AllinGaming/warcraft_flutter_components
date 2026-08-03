@@ -16,8 +16,7 @@ void main() {
       expect(find.text('Card body'), findsOneWidget);
     });
 
-    testWidgets(
-        'regression: no minHeight leaves the card sized to its content',
+    testWidgets('regression: no minHeight leaves the card sized to its content',
         (tester) async {
       await tester.pumpWidget(
         const MaterialApp(

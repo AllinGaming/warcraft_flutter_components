@@ -127,8 +127,10 @@ class _SpinnerPainter extends CustomPainter {
     final runeRadius = radius * 0.45;
     for (var i = 0; i < 3; i++) {
       final angle = startAngle + i * (2 * math.pi / 3);
-      final start = center + Offset(math.cos(angle), math.sin(angle)) * runeRadius;
-      final end = center + Offset(math.cos(angle + 0.4), math.sin(angle + 0.4)) * runeRadius;
+      final start =
+          center + Offset(math.cos(angle), math.sin(angle)) * runeRadius;
+      final end = center +
+          Offset(math.cos(angle + 0.4), math.sin(angle + 0.4)) * runeRadius;
       canvas.drawLine(start, end, runePaint);
     }
   }

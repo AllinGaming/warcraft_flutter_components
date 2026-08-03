@@ -66,7 +66,8 @@ class _WarcraftCursorState extends State<WarcraftCursor> {
       package: 'warcraft_flutter_components',
       width: widget.size,
       height: widget.size,
-      colorFilter: ColorFilter.mode(_factionColor(widget.faction), BlendMode.srcIn),
+      colorFilter:
+          ColorFilter.mode(_factionColor(widget.faction), BlendMode.srcIn),
     );
   }
 

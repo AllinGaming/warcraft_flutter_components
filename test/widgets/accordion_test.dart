@@ -91,7 +91,8 @@ void main() {
       expect(find.text('D body'), findsNothing);
     });
 
-    testWidgets('an unrelated rebuild with the same item instances preserves expand state',
+    testWidgets(
+        'an unrelated rebuild with the same item instances preserves expand state',
         (tester) async {
       final items = [
         WarcraftAccordionItem(title: 'A', content: const Text('A body')),

@@ -19,7 +19,8 @@ class SpinnerSkeletonSection extends StatelessWidget {
       children: [
         const WarcraftSpinner(),
         const SizedBox(height: 16),
-        const Text('Rounded skeletons', style: TextStyle(color: Colors.white70)),
+        const Text('Rounded skeletons',
+            style: TextStyle(color: Colors.white70)),
         const SizedBox(height: 8),
         Wrap(
           spacing: 12,
@@ -30,7 +31,8 @@ class SpinnerSkeletonSection extends StatelessWidget {
           ],
         ),
         const SizedBox(height: 16),
-        const Text('Circular skeletons', style: TextStyle(color: Colors.white70)),
+        const Text('Circular skeletons',
+            style: TextStyle(color: Colors.white70)),
         const SizedBox(height: 8),
         Wrap(
           spacing: 12,

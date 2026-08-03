@@ -84,8 +84,7 @@ void main() {
   });
 
   group('WarcraftRadioGroup', () {
-    testWidgets('lays out all children vertically by default',
-        (tester) async {
+    testWidgets('lays out all children vertically by default', (tester) async {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
