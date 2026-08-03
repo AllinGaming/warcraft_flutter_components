@@ -5,14 +5,15 @@
 [![GitHub Pages](https://img.shields.io/badge/GitHub%20Pages-live-blue)](https://allingaming.github.io/warcraft_flutter_components/)
 [![license](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
-Warcraft-themed Flutter UI components inspired by the WarcraftCN React UI. Includes ready-to-use widgets, themed assets, and a full example app.
+Warcraft-themed Flutter UI components inspired by the [WarcraftCN](https://www.warcraftcn.com/) React UI. Includes all 18 ready-to-use widgets, themed assets, and a full example app — accessible (Semantics, keyboard/focus support, 48dp tap targets) and built on a shared design-token scale.
 
 ## Features
 
-- Ready-made Warcraft UI widgets (buttons, cards, tabs, inputs, etc).
-- Faction-themed tabs and visual variants.
-- Custom 9-slice border box rendering for frames and panels.
-- Example app showcasing all components.
+- All 18 warcraftcn/ui components, ported to Flutter.
+- Faction-themed tabs, checkboxes, avatars, skeletons, toasts, and cursor.
+- Custom 9-slice border box rendering for frames and panels, shared across widgets (and exported for your own use).
+- Accessible by default: Semantics roles, keyboard activation, minimum tap targets.
+- Example app showcasing every component and variant.
 
 ## Components
 
@@ -20,8 +21,9 @@ Warcraft-themed Flutter UI components inspired by the WarcraftCN React UI. Inclu
 - `WarcraftAvatar`
 - `WarcraftBadge`
 - `WarcraftButton`
-- `WarcraftCard`
+- `WarcraftCard` (+ `WarcraftCardSection` / `Header` / `Content` / `Footer`)
 - `WarcraftCheckbox`
+- `WarcraftCursor`
 - `WarcraftDropdownMenu`
 - `WarcraftInput`
 - `WarcraftLabel`
@@ -31,6 +33,7 @@ Warcraft-themed Flutter UI components inspired by the WarcraftCN React UI. Inclu
 - `WarcraftSpinner`
 - `WarcraftTabs`
 - `WarcraftTextarea`
+- `WarcraftToast`
 - `WarcraftTooltip`
 
 ## Install
@@ -43,7 +46,7 @@ Or add to `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  warcraft_flutter_components: ^0.1.0
+  warcraft_flutter_components: ^0.2.0
 ```
 
 ## Usage
@@ -75,6 +78,17 @@ WarcraftPagination(
   currentPage: 3,
   pageCount: 10,
   onPageChanged: (page) {},
+);
+
+WarcraftLabel(
+  text: 'Hero Name',
+  isRequired: true,
+);
+
+WarcraftToast.show(
+  context,
+  message: 'Quest complete!',
+  type: WarcraftToastType.success,
 );
 ```
 

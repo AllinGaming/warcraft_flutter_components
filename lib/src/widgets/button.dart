@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import '../assets/warcraft_assets.dart';
 import '../theme/warcraft_theme.dart';
+import '../theme/warcraft_tokens.dart';
 import 'border_box.dart';
 
 /// Visual variants for Warcraft buttons.
@@ -19,6 +21,7 @@ class WarcraftButton extends StatefulWidget {
     this.size = WarcraftButtonSize.md,
     this.padding,
     this.maxWidth = 220,
+    this.focusNode,
   });
 
   final Widget child;
@@ -27,6 +30,7 @@ class WarcraftButton extends StatefulWidget {
   final WarcraftButtonSize size;
   final EdgeInsetsGeometry? padding;
   final double maxWidth;
+  final FocusNode? focusNode;
 
   bool get enabled => onPressed != null;
 
@@ -46,7 +50,9 @@ class _WarcraftButtonState extends State<WarcraftButton> {
       style: WarcraftTheme.baseTextStyle(context).copyWith(
         color: Colors.white,
         fontWeight: FontWeight.w600,
-        fontSize: widget.size == WarcraftButtonSize.sm ? 12 : 14,
+        fontSize: widget.size == WarcraftButtonSize.sm
+            ? WarcraftTokens.typeMd
+            : WarcraftTokens.typeLg,
       ),
       child: IconTheme.merge(
         data: const IconThemeData(color: Colors.white, size: 18),
@@ -54,33 +60,60 @@ class _WarcraftButtonState extends State<WarcraftButton> {
       ),
     );
 
-    return ConstrainedBox(
-      constraints: BoxConstraints(maxWidth: widget.maxWidth),
-      child: GestureDetector(
-        behavior: HitTestBehavior.opaque,
-        onTapDown: widget.enabled ? (_) => setState(() => _pressed = true) : null,
-        onTapCancel:
-            widget.enabled ? () => setState(() => _pressed = false) : null,
-        onTapUp: widget.enabled
-            ? (_) => setState(() => _pressed = false)
-            : null,
-        onTap: widget.onPressed,
-        child: AnimatedScale(
-          scale: _pressed ? 0.97 : 1,
-          duration: const Duration(milliseconds: 80),
-          child: Opacity(
-            opacity: widget.enabled ? 1 : 0.6,
-            child: ColorFiltered(
-              colorFilter: ColorFilter.mode(
-                _pressed ? Colors.black.withAlpha(51) : Colors.transparent,
-                BlendMode.darken,
+    return Semantics(
+      button: true,
+      enabled: widget.enabled,
+      child: MouseRegion(
+        cursor: widget.enabled ? SystemMouseCursors.click : SystemMouseCursors.basic,
+        child: Focus(
+          focusNode: widget.focusNode,
+          onKeyEvent: (node, event) {
+            final isActivationKey = event.logicalKey == LogicalKeyboardKey.enter ||
+                event.logicalKey == LogicalKeyboardKey.space;
+            if (widget.enabled && isActivationKey && event is KeyDownEvent) {
+              widget.onPressed?.call();
+              return KeyEventResult.handled;
+            }
+            return KeyEventResult.ignored;
+          },
+          child: ConstrainedBox(
+            constraints: BoxConstraints(maxWidth: widget.maxWidth),
+            child: GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTapDown: widget.enabled ? (_) => setState(() => _pressed = true) : null,
+              onTapCancel:
+                  widget.enabled ? () => setState(() => _pressed = false) : null,
+              onTapUp: widget.enabled
+                  ? (_) => setState(() => _pressed = false)
+                  : null,
+              onTap: widget.onPressed,
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(
+                  minWidth: WarcraftTokens.minTapTarget,
+                  minHeight: WarcraftTokens.minTapTarget,
+                ),
+                child: Center(
+                  child: AnimatedScale(
+                    scale: _pressed ? 0.97 : 1,
+                    duration: const Duration(milliseconds: 80),
+                    child: Opacity(
+                      opacity: widget.enabled ? 1 : WarcraftTokens.disabledOpacity,
+                      child: ColorFiltered(
+                        colorFilter: ColorFilter.mode(
+                          _pressed ? Colors.black.withAlpha(51) : Colors.transparent,
+                          BlendMode.darken,
+                        ),
+                        child: WarcraftBorderBox(
+                          asset: asset,
+                          sliceInsets: const EdgeInsets.all(8),
+                          padding: contentPadding,
+                          child: child,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
               ),
-            child: WarcraftBorderBox(
-              asset: asset,
-              sliceInsets: const EdgeInsets.all(8),
-              padding: contentPadding,
-              child: child,
-            ),
             ),
           ),
         ),

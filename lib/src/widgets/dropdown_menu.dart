@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../theme/warcraft_theme.dart';
+import '../theme/warcraft_tokens.dart';
 
 /// Base class for Warcraft dropdown menu entries.
 abstract class WarcraftMenuEntry {
@@ -45,6 +46,18 @@ class WarcraftMenuRadio<T> extends WarcraftMenuEntry {
   final T value;
   final T groupValue;
   final ValueChanged<T> onChanged;
+
+  /// Invokes [onChanged] with [value].
+  ///
+  /// Called through the object's own (dynamically dispatched) method rather
+  /// than externally as `item.onChanged(item.value)` after an `is
+  /// WarcraftMenuRadio` check — that pattern reads both members through the
+  /// *unparameterized* promoted type `WarcraftMenuRadio<dynamic>`, which
+  /// throws a runtime `TypeError` for any concrete, non-`dynamic` `T` (e.g.
+  /// `WarcraftMenuRadio<String>`) since `void Function(String)` is not a
+  /// subtype of `void Function(dynamic)`. Calling it as an instance method
+  /// keeps `T` consistent on both sides.
+  void select() => onChanged(value);
 }
 
 /// Section label for menus.
@@ -75,19 +88,25 @@ class WarcraftDropdownMenu extends StatelessWidget {
     super.key,
     required this.child,
     required this.items,
+    this.enabled = true,
   });
 
   final Widget child;
   final List<WarcraftMenuEntry> items;
+  final bool enabled;
+
+  static const _menuColor = Color(0xFF1B130B);
+  static const _menuBorderColor = Color(0xFF6B4A16);
 
   @override
   Widget build(BuildContext context) {
     return PopupMenuButton<int>(
       tooltip: '',
-      color: const Color(0xFF1B130B),
+      enabled: enabled,
+      color: _menuColor,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(8),
-        side: const BorderSide(color: Color(0xFF6B4A16)),
+        side: const BorderSide(color: _menuBorderColor),
       ),
       itemBuilder: (context) => _buildItems(context, items),
       onSelected: (index) => _handleSelected(context, items, index),
@@ -100,9 +119,15 @@ class WarcraftDropdownMenu extends StatelessWidget {
     List<WarcraftMenuEntry> source,
   ) {
     final entries = <PopupMenuEntry<int>>[];
-    var index = 0;
 
-    for (final item in source) {
+    // A plain indexed loop (rather than a running counter incremented via
+    // `continue`) keeps each entry's `value: index` trivially in sync with
+    // its real position in `source` — `_handleSelected` indexes back into
+    // `source` by that same value, so any divergence (e.g. a separator or
+    // label skipping the increment) would route a tap to the wrong entry.
+    for (var index = 0; index < source.length; index++) {
+      final item = source[index];
+
       if (item is WarcraftMenuSeparator) {
         entries.add(const PopupMenuDivider(height: 8));
         continue;
@@ -116,7 +141,7 @@ class WarcraftDropdownMenu extends StatelessWidget {
               item.label.toUpperCase(),
               style: WarcraftTheme.baseTextStyle(context).copyWith(
                 color: WarcraftColors.amber400.withAlpha(178),
-                fontSize: 11,
+                fontSize: WarcraftTokens.typeSm,
                 letterSpacing: 1.2,
                 fontWeight: FontWeight.bold,
               ),
@@ -127,23 +152,29 @@ class WarcraftDropdownMenu extends StatelessWidget {
       }
 
       if (item is WarcraftMenuSubmenu) {
+        late BuildContext itemContext;
         entries.add(
           PopupMenuItem<int>(
-            value: index,
-            child: Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    item.label,
-                    style: WarcraftTheme.baseTextStyle(context).copyWith(
-                      color: WarcraftColors.amber100,
-                      fontSize: 13,
+            child: Builder(
+              builder: (ctx) {
+                itemContext = ctx;
+                return Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        item.label,
+                        style: WarcraftTheme.baseTextStyle(context).copyWith(
+                          color: WarcraftColors.amber100,
+                          fontSize: WarcraftTokens.typeBase,
+                        ),
+                      ),
                     ),
-                  ),
-                ),
-                const Icon(Icons.chevron_right, size: 16, color: Color(0xFFF59E0B)),
-              ],
+                    const Icon(Icons.chevron_right, size: 16, color: Color(0xFFF59E0B)),
+                  ],
+                );
+              },
             ),
+            onTap: () => _openSubmenu(context, itemContext, item),
           ),
         );
       } else if (item is WarcraftMenuAction) {
@@ -155,7 +186,7 @@ class WarcraftDropdownMenu extends StatelessWidget {
               item.label,
               style: WarcraftTheme.baseTextStyle(context).copyWith(
                 color: WarcraftColors.amber100,
-                fontSize: 13,
+                fontSize: WarcraftTokens.typeBase,
               ),
             ),
           ),
@@ -171,12 +202,12 @@ class WarcraftDropdownMenu extends StatelessWidget {
                   size: 16,
                   color: WarcraftColors.amber400,
                 ),
-                const SizedBox(width: 8),
+                const SizedBox(width: WarcraftTokens.spacingSm),
                 Text(
                   item.label,
                   style: WarcraftTheme.baseTextStyle(context).copyWith(
                     color: WarcraftColors.amber100,
-                    fontSize: 13,
+                    fontSize: WarcraftTokens.typeBase,
                   ),
                 ),
               ],
@@ -195,12 +226,12 @@ class WarcraftDropdownMenu extends StatelessWidget {
                   size: 16,
                   color: WarcraftColors.amber400,
                 ),
-                const SizedBox(width: 8),
+                const SizedBox(width: WarcraftTokens.spacingSm),
                 Text(
                   item.label,
                   style: WarcraftTheme.baseTextStyle(context).copyWith(
                     color: WarcraftColors.amber100,
-                    fontSize: 13,
+                    fontSize: WarcraftTokens.typeBase,
                   ),
                 ),
               ],
@@ -208,8 +239,6 @@ class WarcraftDropdownMenu extends StatelessWidget {
           ),
         );
       }
-
-      index += 1;
     }
 
     return entries;
@@ -226,30 +255,53 @@ class WarcraftDropdownMenu extends StatelessWidget {
     } else if (item is WarcraftMenuCheckbox) {
       item.onChanged(!item.value);
     } else if (item is WarcraftMenuRadio) {
-      item.onChanged(item.value);
-    } else if (item is WarcraftMenuSubmenu) {
-      _showSubmenu(context, item.children);
+      item.select();
     }
   }
 
-  void _showSubmenu(BuildContext context, List<WarcraftMenuEntry> submenu) {
-    final overlay = Overlay.of(context).context.findRenderObject() as RenderBox;
-    final position = RelativeRect.fromLTRB(100, 100, overlay.size.width - 100, 0);
+  /// Computes the submenu's anchor position from the tapped item's own
+  /// [itemContext] *before* the current menu route finishes closing (its
+  /// [RenderBox] would otherwise be detached), then opens the submenu on the
+  /// next frame using the stable, still-mounted outer [context].
+  void _openSubmenu(
+    BuildContext context,
+    BuildContext itemContext,
+    WarcraftMenuSubmenu item,
+  ) {
+    final overlayBox = Overlay.of(context).context.findRenderObject()! as RenderBox;
+    final itemBox = itemContext.findRenderObject()! as RenderBox;
+    final position = RelativeRect.fromRect(
+      Rect.fromPoints(
+        itemBox.localToGlobal(Offset.zero, ancestor: overlayBox),
+        itemBox.localToGlobal(itemBox.size.bottomRight(Offset.zero), ancestor: overlayBox),
+      ),
+      Offset.zero & overlayBox.size,
+    );
 
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (context.mounted) {
+        _showSubmenu(context, item.children, position);
+      }
+    });
+  }
+
+  void _showSubmenu(
+    BuildContext context,
+    List<WarcraftMenuEntry> submenu,
+    RelativeRect position,
+  ) {
     showMenu<int>(
       context: context,
       position: position,
-      color: const Color(0xFF1B130B),
+      color: _menuColor,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(8),
-        side: const BorderSide(color: Color(0xFF6B4A16)),
+        side: const BorderSide(color: _menuBorderColor),
       ),
       items: _buildItems(context, submenu),
     ).then((value) {
-      if (!context.mounted) return;
-      if (value != null) {
-        _handleSelected(context, submenu, value);
-      }
+      if (!context.mounted || value == null) return;
+      _handleSelected(context, submenu, value);
     });
   }
 }

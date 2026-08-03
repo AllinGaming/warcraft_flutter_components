@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../assets/warcraft_assets.dart';
 import '../foundation/warcraft_faction.dart';
 import '../theme/warcraft_theme.dart';
+import '../theme/warcraft_tokens.dart';
 
 /// Callback signature for Warcraft checkbox changes.
 typedef WarcraftCheckboxChanged = void Function(bool value);
@@ -11,7 +12,7 @@ class WarcraftCheckbox extends StatelessWidget {
   const WarcraftCheckbox({
     super.key,
     required this.value,
-    required this.onChanged,
+    this.onChanged,
     this.faction = WarcraftFaction.defaultFaction,
     this.label,
     this.enabled = true,
@@ -26,10 +27,10 @@ class WarcraftCheckbox extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final checkbox = Opacity(
-      opacity: enabled ? 1 : 0.5,
+      opacity: enabled ? 1 : WarcraftTokens.disabledOpacity,
       child: Container(
-        width: 48,
-        height: 48,
+        width: WarcraftTokens.minTapTarget,
+        height: WarcraftTokens.minTapTarget,
         decoration: BoxDecoration(
           image: DecorationImage(
             image: AssetImage(
@@ -47,7 +48,7 @@ class WarcraftCheckbox extends StatelessWidget {
       children: [
         checkbox,
         if (label != null) ...[
-          const SizedBox(width: 12),
+          const SizedBox(width: WarcraftTokens.spacingMd),
           Flexible(
             child: DefaultTextStyle.merge(
               style: WarcraftTheme.baseTextStyle(context).copyWith(
@@ -61,9 +62,13 @@ class WarcraftCheckbox extends StatelessWidget {
       ],
     );
 
-    return GestureDetector(
-      onTap: enabled ? () => onChanged?.call(!value) : null,
-      child: content,
+    return Semantics(
+      checked: value,
+      enabled: enabled && onChanged != null,
+      child: GestureDetector(
+        onTap: enabled ? () => onChanged?.call(!value) : null,
+        child: content,
+      ),
     );
   }
 

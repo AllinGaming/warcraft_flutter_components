@@ -1,6 +1,15 @@
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 
+/// Renders [asset] as a 9-slice (or, with a zero top/bottom inset, a
+/// horizontal 3-slice) frame around [child].
+///
+/// This is the package's shared image-frame primitive: pass
+/// `sliceInsets: EdgeInsets.only(left: capWidth, right: capWidth)` to get a
+/// horizontal-only cap/stretch/cap layout (used by [WarcraftInput] and
+/// [WarcraftTextarea]), or full insets on every side for a true 9-slice
+/// panel (used by [WarcraftCard], [WarcraftButton], etc.).
 class WarcraftBorderBox extends StatefulWidget {
   const WarcraftBorderBox({
     super.key,
@@ -51,20 +60,51 @@ class _WarcraftBorderBoxState extends State<WarcraftBorderBox> {
   @override
   void dispose() {
     _removeListener();
+    _image?.dispose();
     super.dispose();
   }
 
   void _resolveImage() {
-    _removeListener();
     final provider = AssetImage(widget.asset, package: 'warcraft_flutter_components');
     final stream = provider.resolve(const ImageConfiguration());
-    _listener = ImageStreamListener((info, _) {
-      if (mounted) {
+
+    // The stream key is stable for an unchanged asset/configuration, so
+    // dependency changes that don't actually affect asset resolution (e.g.
+    // an unrelated InheritedWidget rebuild) are a cheap no-op instead of
+    // tearing down and re-subscribing a fresh listener every time.
+    if (_stream?.key == stream.key) {
+      return;
+    }
+
+    _removeListener();
+    _listener = ImageStreamListener(
+      (info, _) {
+        if (!mounted) {
+          info.image.dispose();
+          return;
+        }
+        final previous = _image;
         setState(() {
           _image = info.image;
         });
-      }
-    });
+        if (previous != null) {
+          SchedulerBinding.instance.addPostFrameCallback((_) => previous.dispose());
+        }
+      },
+      onError: (exception, stackTrace) {
+        FlutterError.reportError(
+          FlutterErrorDetails(
+            exception: exception,
+            stack: stackTrace,
+            library: 'warcraft_flutter_components',
+            context: ErrorDescription('resolving WarcraftBorderBox asset ${widget.asset}'),
+          ),
+        );
+        if (mounted) {
+          setState(() => _image = null);
+        }
+      },
+    );
     stream.addListener(_listener!);
     _stream = stream;
   }
@@ -77,12 +117,18 @@ class _WarcraftBorderBoxState extends State<WarcraftBorderBox> {
 
   @override
   Widget build(BuildContext context) {
+    // Only wrap in `Align` when the caller actually asks for alignment.
+    // `Align` sizes itself to fill any *bounded* incoming constraint (even
+    // a merely-loose one), regardless of the alignment value — so an
+    // unconditional `Align` here would force every frame to expand to fill
+    // whatever ambient bounded space it's placed in (e.g. a full Scaffold
+    // body) instead of shrink-wrapping its own content.
+    final alignment = widget.alignment;
     final content = Padding(
       padding: widget.padding ?? EdgeInsets.zero,
-      child: Align(
-        alignment: widget.alignment ?? Alignment.center,
-        child: widget.child,
-      ),
+      child: alignment == null
+          ? widget.child
+          : Align(alignment: alignment, child: widget.child),
     );
 
     final painter = _image == null

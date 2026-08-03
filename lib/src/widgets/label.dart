@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../theme/warcraft_theme.dart';
+import '../theme/warcraft_tokens.dart';
 
 /// Visual variants for labels.
 enum WarcraftLabelVariant { defaultVariant, muted }
@@ -10,19 +11,19 @@ class WarcraftLabel extends StatelessWidget {
     super.key,
     required this.text,
     this.variant = WarcraftLabelVariant.defaultVariant,
-    this.required = false,
+    this.isRequired = false,
     this.enabled = true,
   });
 
   final String text;
   final WarcraftLabelVariant variant;
-  final bool required;
+  final bool isRequired;
   final bool enabled;
 
   @override
   Widget build(BuildContext context) {
     final style = WarcraftTheme.baseTextStyle(context).copyWith(
-      fontSize: 12,
+      fontSize: WarcraftTokens.typeMd,
       fontWeight: FontWeight.w600,
       color: variant == WarcraftLabelVariant.muted
           ? WarcraftColors.amber200.withAlpha(153)
@@ -33,13 +34,13 @@ class WarcraftLabel extends StatelessWidget {
     );
 
     return Opacity(
-      opacity: enabled ? 1 : 0.5,
+      opacity: enabled ? 1 : WarcraftTokens.disabledOpacity,
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           Text(text, style: style),
-          if (required) ...[
-            const SizedBox(width: 4),
+          if (isRequired) ...[
+            const SizedBox(width: WarcraftTokens.spacingXs),
             Text(
               '✦',
               style: style.copyWith(color: Colors.redAccent),

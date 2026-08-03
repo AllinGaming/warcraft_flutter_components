@@ -1,7 +1,9 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import '../assets/warcraft_assets.dart';
 import '../theme/warcraft_theme.dart';
+import '../theme/warcraft_tokens.dart';
 import 'border_box.dart';
 
 /// Icon variants for Warcraft accordion headers.
@@ -19,7 +21,12 @@ class WarcraftAccordionItem {
   final String title;
   final Widget content;
   final WarcraftAccordionIcon icon;
-  bool isExpanded;
+
+  /// The item's initial expand state. Only read once, when the enclosing
+  /// [WarcraftAccordion] first mounts (or when its `items` list is swapped
+  /// for a different one) — expand/collapse thereafter is tracked purely as
+  /// UI state inside [WarcraftAccordion], not written back here.
+  final bool isExpanded;
 }
 
 /// Warcraft-themed accordion with animated expand/collapse.
@@ -35,8 +42,7 @@ class WarcraftAccordion extends StatefulWidget {
   State<WarcraftAccordion> createState() => _WarcraftAccordionState();
 }
 
-class _WarcraftAccordionState extends State<WarcraftAccordion>
-    with TickerProviderStateMixin {
+class _WarcraftAccordionState extends State<WarcraftAccordion> {
   late List<bool> _expanded;
 
   @override
@@ -48,7 +54,11 @@ class _WarcraftAccordionState extends State<WarcraftAccordion>
   @override
   void didUpdateWidget(covariant WarcraftAccordion oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.items.length != widget.items.length) {
+    // Compare by element identity (not just list length) so swapping in a
+    // same-length-but-different set of items correctly resets expand state,
+    // while an unrelated rebuild that passes the same item instances back
+    // preserves whatever the user has toggled.
+    if (!listEquals(oldWidget.items, widget.items)) {
       _expanded = widget.items.map((item) => item.isExpanded).toList();
     }
   }
@@ -60,14 +70,13 @@ class _WarcraftAccordionState extends State<WarcraftAccordion>
         final item = widget.items[index];
         final isExpanded = _expanded[index];
         return Padding(
-          padding: const EdgeInsets.only(bottom: 8),
+          padding: const EdgeInsets.only(bottom: WarcraftTokens.spacingSm),
           child: Column(
             children: [
               GestureDetector(
                 onTap: () {
                   setState(() {
                     _expanded[index] = !_expanded[index];
-                    item.isExpanded = _expanded[index];
                   });
                 },
                 child: _Header(item: item, isExpanded: isExpanded),
@@ -108,7 +117,7 @@ class _Header extends StatelessWidget {
               item.title,
               style: WarcraftTheme.baseTextStyle(context).copyWith(
                 color: Colors.white,
-                fontSize: 14,
+                fontSize: WarcraftTokens.typeLg,
                 fontWeight: FontWeight.w600,
               ),
             ),
@@ -155,7 +164,7 @@ class _Body extends StatelessWidget {
       child: DefaultTextStyle.merge(
         style: WarcraftTheme.baseTextStyle(context).copyWith(
           color: WarcraftColors.cardForeground,
-          fontSize: 13,
+          fontSize: WarcraftTokens.typeBase,
         ),
         child: content,
       ),

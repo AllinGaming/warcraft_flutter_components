@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'button.dart';
 import '../theme/warcraft_theme.dart';
+import '../theme/warcraft_tokens.dart';
 
 /// Warcraft-themed pagination with ellipsis and navigation buttons.
 class WarcraftPagination extends StatelessWidget {
@@ -110,7 +111,7 @@ class _PageButton extends StatelessWidget {
               ? WarcraftColors.amber200
               : WarcraftColors.amber200.withAlpha(178),
           fontWeight: FontWeight.bold,
-          fontSize: 12,
+          fontSize: WarcraftTokens.typeMd,
         ),
       ),
     );
@@ -144,7 +145,7 @@ class _NavButton extends StatelessWidget {
               color: enabled
                   ? WarcraftColors.amber200
                   : WarcraftColors.amber200.withAlpha(128),
-              fontSize: 12,
+              fontSize: WarcraftTokens.typeMd,
             ),
           ),
         ],
@@ -165,11 +166,11 @@ class _Ellipsis extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(10, 8, 10, 0),
       child: Text(
         dots,
-        style: const TextStyle(
-          color: Color(0xFFF59E0B),
+        style: WarcraftTheme.baseTextStyle(context).copyWith(
+          color: const Color(0xFFF59E0B),
           fontWeight: FontWeight.bold,
           letterSpacing: 2,
-          fontSize: 10,
+          fontSize: WarcraftTokens.typeXs,
         ),
       ),
     );

@@ -12,12 +12,17 @@ class WarcraftSkeleton extends StatefulWidget {
     this.height,
     this.faction = WarcraftFaction.defaultFaction,
     this.shape = WarcraftSkeletonShape.rounded,
+    this.semanticLabel = 'Loading',
   });
 
   final double? width;
   final double? height;
   final WarcraftFaction faction;
   final WarcraftSkeletonShape shape;
+
+  /// Announced to assistive technology while the skeleton is shown. Pass
+  /// `null` to leave the placeholder unlabeled/excluded from semantics.
+  final String? semanticLabel;
 
   @override
   State<WarcraftSkeleton> createState() => _WarcraftSkeletonState();
@@ -48,36 +53,45 @@ class _WarcraftSkeletonState extends State<WarcraftSkeleton>
         ? BorderRadius.circular(999)
         : BorderRadius.circular(6);
 
-    return SizedBox(
-      width: widget.width,
-      height: widget.height,
-      child: ClipRRect(
-        borderRadius: borderRadius,
-        child: Stack(
-          fit: StackFit.expand,
-          children: [
-            Container(decoration: BoxDecoration(gradient: _baseGradient())),
-            AnimatedBuilder(
-              animation: _controller,
-              builder: (_, __) {
-                final shimmerPosition = _controller.value * 2 - 1;
-                return Transform.translate(
-                  offset: Offset(shimmerPosition * (widget.width ?? 200), 0),
-                  child: Container(
+    return Semantics(
+      label: widget.semanticLabel,
+      child: SizedBox(
+        width: widget.width,
+        height: widget.height,
+        child: ClipRRect(
+          borderRadius: borderRadius,
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final sweepWidth = widget.width ??
+                  (constraints.maxWidth.isFinite ? constraints.maxWidth : 200.0);
+              return Stack(
+                fit: StackFit.expand,
+                children: [
+                  Container(decoration: BoxDecoration(gradient: _baseGradient())),
+                  AnimatedBuilder(
+                    animation: _controller,
+                    builder: (_, __) {
+                      final shimmerPosition = _controller.value * 2 - 1;
+                      return Transform.translate(
+                        offset: Offset(shimmerPosition * sweepWidth, 0),
+                        child: Container(
+                          decoration: BoxDecoration(
+                            gradient: _shimmerGradient(),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                  Container(
                     decoration: BoxDecoration(
-                      gradient: _shimmerGradient(),
+                      borderRadius: borderRadius,
+                      border: Border.all(color: Colors.black.withAlpha(51)),
                     ),
                   ),
-                );
-              },
-            ),
-            Container(
-              decoration: BoxDecoration(
-                borderRadius: borderRadius,
-                border: Border.all(color: Colors.black.withAlpha(51)),
-              ),
-            ),
-          ],
+                ],
+              );
+            },
+          ),
         ),
       ),
     );

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../assets/warcraft_assets.dart';
 import '../foundation/warcraft_faction.dart';
 import '../theme/warcraft_theme.dart';
+import '../theme/warcraft_tokens.dart';
 import 'border_box.dart';
 
 /// Warcraft-themed tabs with faction styling.
@@ -46,7 +47,7 @@ class _WarcraftTabsState extends State<WarcraftTabs> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           tabList,
-          const SizedBox(width: 12),
+          const SizedBox(width: WarcraftTokens.spacingMd),
           Expanded(child: content),
         ],
       );
@@ -56,7 +57,7 @@ class _WarcraftTabsState extends State<WarcraftTabs> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         tabList,
-        const SizedBox(height: 8),
+        const SizedBox(height: WarcraftTokens.spacingSm),
         content,
       ],
     );
@@ -91,18 +92,22 @@ class _WarcraftTabsState extends State<WarcraftTabs> {
 
   Widget _buildContent(BuildContext context) {
     final contentAsset = _contentAsset(widget.faction);
+    // No maxHeight cap: taller panel content scrolls instead of being
+    // silently clipped by WarcraftBorderBox's ClipRRect.
     return ConstrainedBox(
-      constraints: const BoxConstraints(minHeight: 160, maxHeight: 360),
+      constraints: const BoxConstraints(minHeight: 160),
       child: WarcraftBorderBox(
         asset: contentAsset,
         sliceInsets: const EdgeInsets.all(48),
         padding: const EdgeInsets.all(20),
-        child: DefaultTextStyle.merge(
-          style: WarcraftTheme.baseTextStyle(context).copyWith(
-            color: WarcraftColors.cardForeground,
-            fontSize: 13,
+        child: SingleChildScrollView(
+          child: DefaultTextStyle.merge(
+            style: WarcraftTheme.baseTextStyle(context).copyWith(
+              color: WarcraftColors.cardForeground,
+              fontSize: WarcraftTokens.typeBase,
+            ),
+            child: widget.contents[_index],
           ),
-          child: widget.contents[_index],
         ),
       ),
     );
@@ -146,8 +151,10 @@ class _TabTrigger extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        width: orientation == Axis.vertical ? 180 : 140,
-        height: 48,
+        constraints: BoxConstraints(
+          minWidth: orientation == Axis.vertical ? 180 : 140,
+          minHeight: WarcraftTokens.minTapTarget,
+        ),
         alignment: Alignment.center,
         decoration: BoxDecoration(
           image: DecorationImage(
@@ -155,7 +162,7 @@ class _TabTrigger extends StatelessWidget {
             fit: BoxFit.fill,
           ),
         ),
-        padding: const EdgeInsets.symmetric(horizontal: 12),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
         child: Text(
           label,
           maxLines: 1,
@@ -165,7 +172,7 @@ class _TabTrigger extends StatelessWidget {
                     faction == WarcraftFaction.undead
                 ? Colors.black
                 : Colors.white,
-            fontSize: 12,
+            fontSize: WarcraftTokens.typeMd,
             fontWeight: FontWeight.w600,
           ),
         ),

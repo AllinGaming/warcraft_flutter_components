@@ -9,11 +9,16 @@ class WarcraftSpinner extends StatefulWidget {
     this.size = 48,
     this.color = WarcraftColors.amber400,
     this.strokeWidth = 4,
+    this.semanticLabel = 'Loading',
   });
 
   final double size;
   final Color color;
   final double strokeWidth;
+
+  /// Announced to assistive technology while the spinner is shown. Pass
+  /// `null` to leave the spinner unlabeled/excluded from semantics.
+  final String? semanticLabel;
 
   @override
   State<WarcraftSpinner> createState() => _WarcraftSpinnerState();
@@ -40,22 +45,25 @@ class _WarcraftSpinnerState extends State<WarcraftSpinner>
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: widget.size,
-      height: widget.size,
-      child: AnimatedBuilder(
-        animation: _controller,
-        builder: (_, __) {
-          return Transform.rotate(
-            angle: _controller.value * 2 * math.pi,
-            child: CustomPaint(
-              painter: _SpinnerPainter(
-                color: widget.color,
-                strokeWidth: widget.strokeWidth,
+    return Semantics(
+      label: widget.semanticLabel,
+      child: SizedBox(
+        width: widget.size,
+        height: widget.size,
+        child: AnimatedBuilder(
+          animation: _controller,
+          builder: (_, __) {
+            return Transform.rotate(
+              angle: _controller.value * 2 * math.pi,
+              child: CustomPaint(
+                painter: _SpinnerPainter(
+                  color: widget.color,
+                  strokeWidth: widget.strokeWidth,
+                ),
               ),
-            ),
-          );
-        },
+            );
+          },
+        ),
       ),
     );
   }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../theme/warcraft_theme.dart';
+import '../theme/warcraft_tokens.dart';
 
 /// Tooltip rarity variants.
 enum WarcraftTooltipVariant { defaultVariant, uncommon, rare, epic, legendary }
@@ -12,7 +13,7 @@ class WarcraftTooltip extends StatelessWidget {
     required this.title,
     this.body,
     this.variant = WarcraftTooltipVariant.defaultVariant,
-    this.waitDuration = const Duration(milliseconds: 0),
+    this.waitDuration = Duration.zero,
   });
 
   final Widget child;
@@ -26,30 +27,39 @@ class WarcraftTooltip extends StatelessWidget {
     final titleStyle = WarcraftTheme.baseTextStyle(context).copyWith(
       color: _titleColor(),
       fontWeight: FontWeight.bold,
-      fontSize: 13,
+      fontSize: WarcraftTokens.typeBase,
     );
 
     final bodyStyle = WarcraftTheme.baseTextStyle(context).copyWith(
       color: WarcraftColors.amber100.withAlpha(204),
-      fontSize: 11,
+      fontSize: WarcraftTokens.typeSm,
     );
 
-    return Tooltip(
-      waitDuration: waitDuration,
-      decoration: _decoration(),
-      richMessage: TextSpan(
-        style: WarcraftTheme.baseTextStyle(context).copyWith(
-          color: WarcraftColors.amber100,
-        ),
-        children: [
-          TextSpan(text: title, style: titleStyle),
-          if (body != null) ...[
-            const TextSpan(text: '\n'),
-            TextSpan(text: body, style: bodyStyle),
+    // Own the accessible string explicitly instead of relying on Tooltip's
+    // internal richMessage.toPlainText() fallback, which naively
+    // concatenates title+body with no punctuation.
+    final semanticMessage = body == null ? title : '$title. $body';
+
+    return Semantics(
+      tooltip: semanticMessage,
+      child: Tooltip(
+        waitDuration: waitDuration,
+        decoration: _decoration(),
+        excludeFromSemantics: true,
+        richMessage: TextSpan(
+          style: WarcraftTheme.baseTextStyle(context).copyWith(
+            color: WarcraftColors.amber100,
+          ),
+          children: [
+            TextSpan(text: title, style: titleStyle),
+            if (body != null) ...[
+              const TextSpan(text: '\n'),
+              TextSpan(text: body, style: bodyStyle),
+            ],
           ],
-        ],
+        ),
+        child: child,
       ),
-      child: child,
     );
   }
 
@@ -73,7 +83,7 @@ class WarcraftTooltip extends StatelessWidget {
     return BoxDecoration(
       color: const Color(0xFF111827),
       borderRadius: BorderRadius.circular(6),
-      border: Border.all(color: border, width: 1),
+      border: Border.all(color: border),
       boxShadow: const [
         BoxShadow(color: Colors.black87, blurRadius: 20, offset: Offset(0, 6)),
       ],

@@ -1,0 +1,6 @@
+/example/
+/.github/
+/.metadata
+/pubspec.lock
+/build/
+/coverage/

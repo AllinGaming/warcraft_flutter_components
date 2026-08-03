@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../assets/warcraft_assets.dart';
 import '../theme/warcraft_theme.dart';
+import '../theme/warcraft_tokens.dart';
 import 'border_box.dart';
 
 /// Visual variants for Warcraft badges.
@@ -110,11 +111,11 @@ class WarcraftBadge extends StatelessWidget {
   double _fontSizeForSize(WarcraftBadgeSize size) {
     switch (size) {
       case WarcraftBadgeSize.sm:
-        return 10;
+        return WarcraftTokens.typeXs;
       case WarcraftBadgeSize.md:
-        return 12;
+        return WarcraftTokens.typeMd;
       case WarcraftBadgeSize.lg:
-        return 14;
+        return WarcraftTokens.typeLg;
     }
   }
 
