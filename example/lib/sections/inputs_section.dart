@@ -13,6 +13,9 @@ class InputsSection extends StatelessWidget {
       children: [
         const WarcraftInput(
           hintText: 'Enter your name...',
+          semanticLabel: 'Character name',
+          helperText: 'Shown to other members of your party.',
+          prefixIcon: Icon(Icons.person_outline_rounded),
           maxWidth: 420,
         ),
         const SizedBox(height: 12),
@@ -24,12 +27,14 @@ class InputsSection extends StatelessWidget {
         const SizedBox(height: 16),
         const WarcraftTextarea(
           hintText: 'Your quest details',
+          semanticLabel: 'Quest details',
+          helperText: 'Describe the objective and expected reward.',
           maxWidth: 420,
         ),
         const SizedBox(height: 12),
         const WarcraftTextarea(
-          hintText: 'Disabled textarea',
-          enabled: false,
+          hintText: 'Validation example',
+          errorText: 'Quest details must include an objective.',
           maxWidth: 420,
         ),
       ],

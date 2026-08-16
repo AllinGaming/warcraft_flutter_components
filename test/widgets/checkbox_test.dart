@@ -1,6 +1,7 @@
 import 'dart:ui' show CheckedState;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:warcraft_flutter_components/warcraft_flutter_components.dart';
 
@@ -36,21 +37,19 @@ void main() {
         ),
       );
 
-      await tester.tap(find.byType(WarcraftCheckbox));
+      await tester.tap(find.text('Accept quest'));
       await tester.pump();
 
       expect(changedTo, isTrue);
     });
 
-    testWidgets('onChanged is optional and tapping is a no-op without it',
-        (tester) async {
+    testWidgets('onChanged is optional and tapping is a no-op without it', (
+      tester,
+    ) async {
       await tester.pumpWidget(
         const MaterialApp(
           home: Scaffold(
-            body: WarcraftCheckbox(
-              value: false,
-              label: Text('Accept quest'),
-            ),
+            body: WarcraftCheckbox(value: false, label: Text('Accept quest')),
           ),
         ),
       );
@@ -61,8 +60,9 @@ void main() {
       expect(find.byType(WarcraftCheckbox), findsOneWidget);
     });
 
-    testWidgets('enabled: false prevents onChanged from firing',
-        (tester) async {
+    testWidgets('enabled: false prevents onChanged from firing', (
+      tester,
+    ) async {
       var callCount = 0;
       await tester.pumpWidget(
         MaterialApp(
@@ -97,7 +97,13 @@ void main() {
         ),
       );
 
-      final semantics = tester.getSemantics(find.byType(WarcraftCheckbox));
+      final boundary = tester.getSemantics(
+        find.bySemanticsLabel('Accept quest'),
+      );
+      final semantics = boundary
+          .debugListChildrenInOrder(DebugSemanticsDumpOrder.traversalOrder)
+          .single;
+      expect(semantics.label, 'Accept quest');
       expect(semantics.flagsCollection.isChecked, CheckedState.isTrue);
       handle.dispose();
     });

@@ -8,9 +8,7 @@ void main() {
     testWidgets('renders its child', (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
-          home: Scaffold(
-            body: WarcraftCursor(child: Text('Hoverable area')),
-          ),
+          home: Scaffold(body: WarcraftCursor(child: Text('Hoverable area'))),
         ),
       );
 
@@ -29,8 +27,9 @@ void main() {
       expect(find.byType(Positioned), findsNothing);
     });
 
-    testWidgets('paints the faction cursor once a mouse hovers',
-        (tester) async {
+    testWidgets('paints the faction cursor once a mouse hovers', (
+      tester,
+    ) async {
       await tester.pumpWidget(
         const MaterialApp(
           home: Scaffold(

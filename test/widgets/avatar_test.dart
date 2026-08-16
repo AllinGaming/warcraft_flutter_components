@@ -7,9 +7,7 @@ void main() {
     testWidgets('renders its fallback content', (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
-          home: Scaffold(
-            body: WarcraftAvatar(fallback: Text('U')),
-          ),
+          home: Scaffold(body: WarcraftAvatar(fallback: Text('U'))),
         ),
       );
 
@@ -36,8 +34,9 @@ void main() {
       }
     });
 
-    testWidgets('renders the provided image instead of the fallback',
-        (tester) async {
+    testWidgets('renders the provided image instead of the fallback', (
+      tester,
+    ) async {
       await tester.pumpWidget(
         const MaterialApp(
           home: Scaffold(
@@ -70,6 +69,23 @@ void main() {
         await tester.pump();
         expect(tester.takeException(), isNull);
       }
+    });
+
+    testWidgets('exposes an optional profile semantic label', (tester) async {
+      final handle = tester.ensureSemantics();
+      await tester.pumpWidget(
+        const MaterialApp(
+          home: Scaffold(
+            body: WarcraftAvatar(
+              semanticLabel: 'Thrall profile portrait',
+              fallback: Text('T'),
+            ),
+          ),
+        ),
+      );
+
+      expect(find.bySemanticsLabel('Thrall profile portrait'), findsOneWidget);
+      handle.dispose();
     });
   });
 }

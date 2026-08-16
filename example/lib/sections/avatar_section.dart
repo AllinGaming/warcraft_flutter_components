@@ -18,6 +18,7 @@ class AvatarSection extends StatelessWidget {
             WarcraftAvatar(
               size: size,
               faction: faction,
+              semanticLabel: '${faction.label} character portrait',
               fallback: Text(faction.name.substring(0, 1).toUpperCase()),
             ),
       ],

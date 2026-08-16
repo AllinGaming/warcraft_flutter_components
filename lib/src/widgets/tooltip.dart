@@ -30,7 +30,15 @@ class WarcraftTooltip extends StatelessWidget {
     this.body,
     this.variant = WarcraftTooltipVariant.defaultVariant,
     this.waitDuration = Duration.zero,
-  });
+    this.showDuration = const Duration(milliseconds: 1500),
+    this.exitDuration = const Duration(milliseconds: 100),
+    this.padding = const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+    this.margin = const EdgeInsets.all(8),
+    this.verticalOffset = 24,
+    this.preferBelow = true,
+    this.constraints = const BoxConstraints(maxWidth: 320),
+    this.enableTapToDismiss = true,
+  }) : assert(verticalOffset >= 0);
 
   /// Widget that triggers the tooltip when hovered, long-pressed, or
   /// focused.
@@ -48,18 +56,42 @@ class WarcraftTooltip extends StatelessWidget {
   /// Delay before the tooltip becomes visible after a hover/long-press.
   final Duration waitDuration;
 
+  /// How long a tooltip triggered by touch remains visible.
+  final Duration showDuration;
+
+  /// Delay before a hovered tooltip disappears after the pointer exits.
+  final Duration exitDuration;
+
+  /// Space around the tooltip's title and body.
+  final EdgeInsetsGeometry padding;
+
+  /// Minimum distance between the tooltip and the screen edge.
+  final EdgeInsetsGeometry margin;
+
+  /// Distance between the tooltip and its trigger.
+  final double verticalOffset;
+
+  /// Whether the tooltip prefers placement below its trigger.
+  final bool preferBelow;
+
+  /// Optional size constraints for long tooltip content.
+  final BoxConstraints? constraints;
+
+  /// Whether tapping outside or on the trigger dismisses a shown tooltip.
+  final bool enableTapToDismiss;
+
   @override
   Widget build(BuildContext context) {
+    final theme = WarcraftTheme.of(context);
     final titleStyle = WarcraftTheme.baseTextStyle(context).copyWith(
-      color: _titleColor(),
+      color: _titleColor(theme),
       fontWeight: FontWeight.bold,
       fontSize: WarcraftTokens.typeBase,
     );
 
-    final bodyStyle = WarcraftTheme.baseTextStyle(context).copyWith(
-      color: WarcraftColors.amber100.withAlpha(204),
-      fontSize: WarcraftTokens.typeSm,
-    );
+    final bodyStyle = WarcraftTheme.baseTextStyle(
+      context,
+    ).copyWith(color: theme.mutedForeground, fontSize: WarcraftTokens.typeSm);
 
     // Own the accessible string explicitly instead of relying on Tooltip's
     // internal richMessage.toPlainText() fallback, which naively
@@ -70,12 +102,20 @@ class WarcraftTooltip extends StatelessWidget {
       tooltip: semanticMessage,
       child: Tooltip(
         waitDuration: waitDuration,
-        decoration: _decoration(),
+        showDuration: showDuration,
+        exitDuration: exitDuration,
+        padding: padding,
+        margin: margin,
+        verticalOffset: verticalOffset,
+        preferBelow: preferBelow,
+        constraints: constraints,
+        enableTapToDismiss: enableTapToDismiss,
+        decoration: _decoration(theme),
         excludeFromSemantics: true,
         richMessage: TextSpan(
-          style: WarcraftTheme.baseTextStyle(context).copyWith(
-            color: WarcraftColors.amber100,
-          ),
+          style: WarcraftTheme.baseTextStyle(
+            context,
+          ).copyWith(color: theme.foreground),
           children: [
             TextSpan(text: title, style: titleStyle),
             if (body != null) ...[
@@ -89,45 +129,49 @@ class WarcraftTooltip extends StatelessWidget {
     );
   }
 
-  Color _titleColor() {
+  Color _titleColor(WarcraftThemeData theme) {
     switch (variant) {
       case WarcraftTooltipVariant.uncommon:
-        return const Color(0xFF4ADE80);
+        return theme.success;
       case WarcraftTooltipVariant.rare:
-        return const Color(0xFF60A5FA);
+        return theme.info;
       case WarcraftTooltipVariant.epic:
         return const Color(0xFFC084FC);
       case WarcraftTooltipVariant.legendary:
-        return const Color(0xFFF59E0B);
+        return theme.warning;
       case WarcraftTooltipVariant.defaultVariant:
-        return WarcraftColors.amber200;
+        return theme.primary;
     }
   }
 
-  Decoration _decoration() {
-    final border = _borderColor();
+  Decoration _decoration(WarcraftThemeData theme) {
+    final border = _borderColor(theme);
     return BoxDecoration(
-      color: const Color(0xFF111827),
-      borderRadius: BorderRadius.circular(6),
+      color: theme.surfaceElevated,
+      borderRadius: BorderRadius.circular(theme.radius),
       border: Border.all(color: border),
-      boxShadow: const [
-        BoxShadow(color: Colors.black87, blurRadius: 20, offset: Offset(0, 6)),
+      boxShadow: [
+        BoxShadow(
+          color: theme.shadow,
+          blurRadius: 20,
+          offset: const Offset(0, 6),
+        ),
       ],
     );
   }
 
-  Color _borderColor() {
+  Color _borderColor(WarcraftThemeData theme) {
     switch (variant) {
       case WarcraftTooltipVariant.uncommon:
-        return const Color(0xFF22C55E);
+        return theme.success;
       case WarcraftTooltipVariant.rare:
-        return const Color(0xFF3B82F6);
+        return theme.info;
       case WarcraftTooltipVariant.epic:
         return const Color(0xFF7C3AED);
       case WarcraftTooltipVariant.legendary:
-        return const Color(0xFFF97316);
+        return theme.warning;
       case WarcraftTooltipVariant.defaultVariant:
-        return const Color(0xFF6B4A16);
+        return theme.border;
     }
   }
 }

@@ -58,7 +58,7 @@ class _WarcraftCursorState extends State<WarcraftCursor> {
               child: IgnorePointer(
                 child: widget.builder != null
                     ? widget.builder!(context, widget.faction)
-                    : _defaultCursor(),
+                    : _defaultCursor(context),
               ),
             ),
         ],
@@ -66,29 +66,22 @@ class _WarcraftCursorState extends State<WarcraftCursor> {
     );
   }
 
-  Widget _defaultCursor() {
+  Widget _defaultCursor(BuildContext context) {
     return SvgPicture.asset(
       WarcraftAssets.svgSword,
       package: 'warcraft_flutter_components',
       width: widget.size,
       height: widget.size,
-      colorFilter:
-          ColorFilter.mode(_factionColor(widget.faction), BlendMode.srcIn),
+      colorFilter: ColorFilter.mode(
+        _factionColor(context, widget.faction),
+        BlendMode.srcIn,
+      ),
     );
   }
 
-  Color _factionColor(WarcraftFaction faction) {
-    switch (faction) {
-      case WarcraftFaction.orc:
-        return WarcraftColors.orcRed;
-      case WarcraftFaction.elf:
-        return WarcraftColors.elfGreen;
-      case WarcraftFaction.human:
-        return WarcraftColors.humanBlue;
-      case WarcraftFaction.undead:
-        return WarcraftColors.undeadPurple;
-      case WarcraftFaction.defaultFaction:
-        return WarcraftColors.amber400;
-    }
+  Color _factionColor(BuildContext context, WarcraftFaction faction) {
+    return faction == WarcraftFaction.defaultFaction
+        ? WarcraftTheme.of(context).primary
+        : WarcraftThemeData.forFaction(faction).primary;
   }
 }

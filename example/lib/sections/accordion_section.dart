@@ -9,6 +9,7 @@ class AccordionSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return WarcraftAccordion(
+      allowMultiple: false,
       items: [
         WarcraftAccordionItem(
           title: 'Quest Details',

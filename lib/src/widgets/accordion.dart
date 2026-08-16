@@ -15,17 +15,21 @@ enum WarcraftAccordionIcon {
   shield,
 
   /// A rune stone icon.
-  runeStone
+  runeStone,
 }
+
+/// Reports an accordion item expansion request.
+typedef WarcraftAccordionChanged = void Function(int index, bool expanded);
 
 /// Model for a single accordion item.
 class WarcraftAccordionItem {
   /// Creates a [WarcraftAccordionItem].
-  WarcraftAccordionItem({
+  const WarcraftAccordionItem({
     required this.title,
     required this.content,
     this.icon = WarcraftAccordionIcon.sword,
     this.isExpanded = false,
+    this.semanticLabel,
   });
 
   /// The text shown in the item's header.
@@ -42,6 +46,9 @@ class WarcraftAccordionItem {
   /// for a different one) — expand/collapse thereafter is tracked purely as
   /// UI state inside [WarcraftAccordion], not written back here.
   final bool isExpanded;
+
+  /// Optional accessible replacement for [title].
+  final String? semanticLabel;
 }
 
 /// Warcraft-themed accordion with animated expand/collapse.
@@ -50,10 +57,24 @@ class WarcraftAccordion extends StatefulWidget {
   const WarcraftAccordion({
     super.key,
     required this.items,
+    this.allowMultiple = true,
+    this.onChanged,
+    this.expandedIndexes,
   });
 
   /// The items rendered as expandable sections, in order.
   final List<WarcraftAccordionItem> items;
+
+  /// Whether more than one item may be expanded simultaneously.
+  final bool allowMultiple;
+
+  /// Called after an item changes, with its index and new expanded state.
+  final WarcraftAccordionChanged? onChanged;
+
+  /// Controlled set of expanded item indexes. When provided, the accordion
+  /// does not mutate its internal expansion state; [onChanged] reports the
+  /// requested change and the parent must rebuild with a new set.
+  final Set<int>? expandedIndexes;
 
   @override
   State<WarcraftAccordion> createState() => _WarcraftAccordionState();
@@ -65,7 +86,7 @@ class _WarcraftAccordionState extends State<WarcraftAccordion> {
   @override
   void initState() {
     super.initState();
-    _expanded = widget.items.map((item) => item.isExpanded).toList();
+    _expanded = _initialExpansion();
   }
 
   @override
@@ -75,34 +96,76 @@ class _WarcraftAccordionState extends State<WarcraftAccordion> {
     // same-length-but-different set of items correctly resets expand state,
     // while an unrelated rebuild that passes the same item instances back
     // preserves whatever the user has toggled.
-    if (!listEquals(oldWidget.items, widget.items)) {
-      _expanded = widget.items.map((item) => item.isExpanded).toList();
+    if (widget.expandedIndexes == null && oldWidget.expandedIndexes != null) {
+      _expanded = List.generate(
+        widget.items.length,
+        (index) => oldWidget.expandedIndexes!.contains(index),
+      );
+      _normalizeSingleOpen();
+    } else if (widget.expandedIndexes == null &&
+        !listEquals(oldWidget.items, widget.items)) {
+      _expanded = _initialExpansion();
+    } else if (widget.expandedIndexes == null &&
+        oldWidget.allowMultiple &&
+        !widget.allowMultiple) {
+      _normalizeSingleOpen();
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    assert(
+      widget.expandedIndexes == null ||
+          widget.expandedIndexes!.every(
+            (index) => index >= 0 && index < widget.items.length,
+          ),
+      'expandedIndexes must only contain existing item indexes',
+    );
+    assert(
+      widget.allowMultiple ||
+          widget.expandedIndexes == null ||
+          widget.expandedIndexes!.length <= 1,
+      'expandedIndexes can contain at most one index when allowMultiple is false',
+    );
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: List.generate(widget.items.length, (index) {
         final item = widget.items[index];
-        final isExpanded = _expanded[index];
+        final isExpanded =
+            widget.expandedIndexes?.contains(index) ?? _expanded[index];
         return Padding(
           padding: const EdgeInsets.only(bottom: WarcraftTokens.spacingSm),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              GestureDetector(
-                onTap: () {
-                  setState(() {
-                    _expanded[index] = !_expanded[index];
-                  });
-                },
-                child: _Header(item: item, isExpanded: isExpanded),
+              MergeSemantics(
+                child: Semantics(
+                  container: true,
+                  button: true,
+                  expanded: isExpanded,
+                  label: item.semanticLabel,
+                  excludeSemantics: item.semanticLabel != null,
+                  onTap: () => _toggle(index),
+                  child: Material(
+                    color: Colors.transparent,
+                    child: InkWell(
+                      onTap: () => _toggle(index),
+                      excludeFromSemantics: true,
+                      focusColor: WarcraftTheme.of(
+                        context,
+                      ).focusRing.withAlpha(55),
+                      hoverColor: WarcraftTheme.of(
+                        context,
+                      ).primary.withAlpha(28),
+                      mouseCursor: SystemMouseCursors.click,
+                      child: _Header(item: item, isExpanded: isExpanded),
+                    ),
+                  ),
+                ),
               ),
               ClipRect(
                 child: AnimatedSize(
-                  duration: const Duration(milliseconds: 220),
+                  duration: WarcraftTheme.motionDurationOf(context),
                   curve: Curves.easeOut,
                   child: isExpanded
                       ? _Body(content: item.content)
@@ -115,6 +178,47 @@ class _WarcraftAccordionState extends State<WarcraftAccordion> {
       }),
     );
   }
+
+  void _toggle(int index) {
+    final current = widget.expandedIndexes?.contains(index) ?? _expanded[index];
+    final next = !current;
+    if (widget.expandedIndexes != null) {
+      widget.onChanged?.call(index, next);
+      return;
+    }
+    setState(() {
+      if (next && !widget.allowMultiple) {
+        for (var itemIndex = 0; itemIndex < _expanded.length; itemIndex++) {
+          _expanded[itemIndex] = false;
+        }
+      }
+      _expanded[index] = next;
+    });
+    widget.onChanged?.call(index, next);
+  }
+
+  List<bool> _initialExpansion() {
+    final result = widget.items.map((item) => item.isExpanded).toList();
+    if (!widget.allowMultiple) {
+      var foundExpanded = false;
+      for (var index = 0; index < result.length; index++) {
+        if (!result[index]) continue;
+        if (foundExpanded) result[index] = false;
+        foundExpanded = true;
+      }
+    }
+    return result;
+  }
+
+  void _normalizeSingleOpen() {
+    if (widget.allowMultiple) return;
+    var foundExpanded = false;
+    for (var index = 0; index < _expanded.length; index++) {
+      if (!_expanded[index]) continue;
+      if (foundExpanded) _expanded[index] = false;
+      foundExpanded = true;
+    }
+  }
 }
 
 class _Header extends StatelessWidget {
@@ -125,6 +229,7 @@ class _Header extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = WarcraftTheme.of(context);
     return WarcraftBorderBox(
       asset: WarcraftAssets.accordionHeader,
       sliceInsets: const EdgeInsets.all(6),
@@ -135,7 +240,7 @@ class _Header extends StatelessWidget {
             child: Text(
               item.title,
               style: WarcraftTheme.baseTextStyle(context).copyWith(
-                color: Colors.white,
+                color: theme.foreground,
                 fontSize: WarcraftTokens.typeLg,
                 fontWeight: FontWeight.w600,
               ),
@@ -143,14 +248,14 @@ class _Header extends StatelessWidget {
           ),
           AnimatedRotation(
             turns: isExpanded ? 0.5 : 0.0,
-            duration: const Duration(milliseconds: 220),
+            duration: WarcraftTheme.motionDurationOf(context),
             child: SvgPicture.asset(
               _iconAsset(item.icon),
               width: 16,
               height: 16,
-              colorFilter:
-                  const ColorFilter.mode(Colors.white, BlendMode.srcIn),
+              colorFilter: ColorFilter.mode(theme.foreground, BlendMode.srcIn),
               package: 'warcraft_flutter_components',
+              excludeFromSemantics: true,
             ),
           ),
         ],
@@ -183,7 +288,7 @@ class _Body extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
       child: DefaultTextStyle.merge(
         style: WarcraftTheme.baseTextStyle(context).copyWith(
-          color: WarcraftColors.cardForeground,
+          color: WarcraftTheme.of(context).foreground,
           fontSize: WarcraftTokens.typeBase,
         ),
         child: content,

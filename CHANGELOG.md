@@ -1,5 +1,35 @@
 # Changelog
 
+## 0.5.0
+
+Major design-system and interaction-quality release.
+
+- Raised the supported toolchain floor to Flutter 3.35 and Dart 3.9, and upgraded `flutter_svg` to the 2.3 line so package constraints match the APIs actually used at runtime.
+- Added `WarcraftThemeData`, a fully customizable `ThemeExtension` covering surfaces, content, borders, semantic colors, focus rings, elevation shadows, corner radius, disabled opacity, and motion.
+- Added `WarcraftTheme.themeData()` with built-in neutral, orc, elf, human, and undead application palettes, plus automatic classic-theme fallback for existing apps.
+- Expanded the token system with heading sizes, page-level spacing, corner radii, and motion durations.
+- Upgraded buttons with a large size, semantic labels, autofocus, polished hover glow/scale, visible keyboard focus, theme-aware content, and configurable motion.
+- Upgraded inputs and textareas with focus/error treatments, helper and validation text, semantic labels, focus control, submission callbacks, read-only/autofocus support, and richer single-line field affordances.
+- Expanded input and textarea ergonomics with autofill hints, formatters, capitalization, autocorrect/suggestion control, character limits, text alignment, editing/tap callbacks, and accessible invalid/live-error states.
+- Made checkboxes, radios, tabs, and accordion headers keyboard-focusable with Material hover/focus feedback and correct pointer cursors.
+- Migrated dropdown menus, tooltips, and toast notifications to theme-driven surfaces, contrast, semantic status colors, radii, and shadows.
+- Migrated avatars, badges, cards, labels, radio sockets, loaders, and cursors onto the shared theme, including semantic labels, avatar image fallbacks, and elevated card surfaces.
+- Added controlled selection to `WarcraftTabs`, single-open mode and change callbacks to `WarcraftAccordion`, and localized navigation plus strict range validation to `WarcraftPagination`.
+- Added conventional arrow-key, Home, and End navigation with focus movement and wraparound to horizontal and vertical tabs; tab labels now tolerate large text more gracefully.
+- Made the full radio row—including its visible label—a single tappable and accessible mutually-exclusive control.
+- Made checkbox labels and state a single accessible control, and made required labels announce a localizable “required” description instead of their decorative marker.
+- Added controlled expansion to `WarcraftAccordion`, including safe transitions back to uncontrolled state, single-open normalization for invalid initial data, merged disclosure semantics, localizable item labels, and const item models.
+- Added fully localizable page, current-page, and collapsed-range semantics to `WarcraftPagination`.
+- Added package-wide reduced-motion resolution; component transitions collapse to zero duration and continuously animated spinners/shimmers pause when requested by the platform.
+- Removed empty editor metadata from bundled SVG icons so `flutter_svg` renders them without unsupported-element diagnostics.
+- Fixed toast overlay and registry retention after the final notification exits; `WarcraftToast.show` now returns an idempotent controller for early dismissal and toast cards expose an accessible dismiss action.
+- Added loading/progress state support to `WarcraftButton`, including blocked activation, animated content replacement, and appropriate progress semantics.
+- Expanded dropdown menus with leading/trailing content, disabled checkbox/radio/submenu states, selection semantics, localized trigger tooltips, popup offsets, and custom constraints.
+- Upgraded `WarcraftBorderBox` to support consumer-app assets via `package: null`, configurable sampling, handled asset errors, loading/error fallback decoration, and correctly unclipped elevation shadows.
+- Expanded tooltip timing, placement, padding, sizing, and tap-dismiss configuration for responsive application layouts.
+- Rebuilt the example as a responsive professional component showroom with live faction-palette switching, clearer hierarchy, contextual descriptions, and polished surfaces.
+- Preserved the existing component API defaults while establishing a cohesive pre-stable theming foundation.
+
 ## 0.2.0
 
 Enterprise-readiness overhaul. Includes breaking API changes (pre-1.0).

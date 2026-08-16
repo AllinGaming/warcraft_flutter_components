@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:warcraft_flutter_components/warcraft_flutter_components.dart';
 
@@ -30,10 +31,7 @@ void main() {
         ),
       );
 
-      await tester.enterText(
-        find.byType(TextField),
-        'Slay the dragon.',
-      );
+      await tester.enterText(find.byType(TextField), 'Slay the dragon.');
       await tester.pump();
 
       expect(lastValue, 'Slay the dragon.');
@@ -41,11 +39,7 @@ void main() {
 
     testWidgets('honors the configured maxLines', (tester) async {
       await tester.pumpWidget(
-        const MaterialApp(
-          home: Scaffold(
-            body: WarcraftTextarea(maxLines: 3),
-          ),
-        ),
+        const MaterialApp(home: Scaffold(body: WarcraftTextarea(maxLines: 3))),
       );
 
       final field = tester.widget<TextField>(find.byType(TextField));
@@ -66,6 +60,38 @@ void main() {
 
       final width = tester.getSize(find.byType(WarcraftTextarea)).width;
       expect(width, lessThanOrEqualTo(200));
+    });
+
+    testWidgets('uses multiline defaults and forwards editing configuration', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: WarcraftTextarea(
+              maxLength: 240,
+              inputFormatters: [LengthLimitingTextInputFormatter(240)],
+              autofillHints: const [AutofillHints.streetAddressLine1],
+            ),
+          ),
+        ),
+      );
+
+      final field = tester.widget<TextField>(find.byType(TextField));
+      expect(field.keyboardType, TextInputType.multiline);
+      expect(field.textCapitalization, TextCapitalization.sentences);
+      expect(field.maxLength, 240);
+      expect(field.inputFormatters, hasLength(1));
+      expect(field.autofillHints, contains(AutofillHints.streetAddressLine1));
+    });
+
+    test('rejects invalid line and width constraints', () {
+      expect(() => WarcraftTextarea(minLines: 0), throwsAssertionError);
+      expect(
+        () => WarcraftTextarea(minLines: 4, maxLines: 3),
+        throwsAssertionError,
+      );
+      expect(() => WarcraftTextarea(maxWidth: 0), throwsAssertionError);
     });
   });
 }

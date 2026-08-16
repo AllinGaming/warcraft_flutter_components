@@ -9,10 +9,7 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: WarcraftButton(
-              onPressed: () {},
-              child: const Text('Attack'),
-            ),
+            body: WarcraftButton(onPressed: () {}, child: const Text('Attack')),
           ),
         ),
       );
@@ -42,11 +39,7 @@ void main() {
     testWidgets('does not invoke onPressed when disabled', (tester) async {
       await tester.pumpWidget(
         MaterialApp(
-          home: Scaffold(
-            body: WarcraftButton(
-              child: const Text('Attack'),
-            ),
-          ),
+          home: Scaffold(body: WarcraftButton(child: const Text('Attack'))),
         ),
       );
 
@@ -78,6 +71,56 @@ void main() {
       final size = tester.getSize(find.byType(WarcraftButton));
       expect(size.width, greaterThanOrEqualTo(48));
       expect(size.height, greaterThanOrEqualTo(48));
+    });
+
+    testWidgets('large size and semantic label are supported', (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: WarcraftTheme.themeData(),
+          home: Scaffold(
+            body: WarcraftButton(
+              size: WarcraftButtonSize.lg,
+              semanticLabel: 'Begin adventure',
+              onPressed: _noop,
+              child: const Icon(Icons.bolt),
+            ),
+          ),
+        ),
+      );
+
+      expect(find.bySemanticsLabel('Begin adventure'), findsOneWidget);
+      expect(
+        tester.getSize(find.byType(WarcraftButton)).height,
+        greaterThanOrEqualTo(48),
+      );
+    });
+
+    testWidgets('loading state blocks input and exposes progress semantics', (
+      tester,
+    ) async {
+      var presses = 0;
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: WarcraftTheme.themeData(),
+          home: Scaffold(
+            body: WarcraftButton(
+              isLoading: true,
+              loadingLabel: 'Forging',
+              onPressed: () => presses++,
+              child: const Text('Craft'),
+            ),
+          ),
+        ),
+      );
+
+      final button = tester.widget<WarcraftButton>(find.byType(WarcraftButton));
+      expect(button.enabled, isFalse);
+      expect(find.text('Craft'), findsNothing);
+      expect(find.text('Forging'), findsOneWidget);
+      expect(find.bySemanticsLabel('Forging'), findsOneWidget);
+
+      await tester.tap(find.byType(WarcraftButton));
+      expect(presses, 0);
     });
 
     testWidgets('Enter key triggers onPressed when focused', (tester) async {
@@ -130,15 +173,13 @@ void main() {
       expect(pressed, 1);
     });
 
-    testWidgets('shows a pressed-state tint while the pointer is down',
-        (tester) async {
+    testWidgets('shows a pressed-state tint while the pointer is down', (
+      tester,
+    ) async {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: WarcraftButton(
-              onPressed: () {},
-              child: const Text('Attack'),
-            ),
+            body: WarcraftButton(onPressed: () {}, child: const Text('Attack')),
           ),
         ),
       );
@@ -147,8 +188,10 @@ void main() {
           tester.widget<ColorFiltered>(find.byType(ColorFiltered)).colorFilter;
 
       const restFilter = ColorFilter.mode(Colors.transparent, BlendMode.darken);
-      final pressedFilter =
-          ColorFilter.mode(Colors.black.withAlpha(51), BlendMode.darken);
+      final pressedFilter = ColorFilter.mode(
+        Colors.black.withAlpha(51),
+        BlendMode.darken,
+      );
 
       expect(currentFilter(), restFilter);
 
@@ -163,15 +206,13 @@ void main() {
       expect(currentFilter(), restFilter);
     });
 
-    testWidgets('cancelling the gesture clears the pressed state',
-        (tester) async {
+    testWidgets('cancelling the gesture clears the pressed state', (
+      tester,
+    ) async {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: WarcraftButton(
-              onPressed: () {},
-              child: const Text('Attack'),
-            ),
+            body: WarcraftButton(onPressed: () {}, child: const Text('Attack')),
           ),
         ),
       );

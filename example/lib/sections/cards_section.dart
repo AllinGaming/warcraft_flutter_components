@@ -12,6 +12,8 @@ class CardsSection extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const WarcraftCard(
+          elevation: 10,
+          semanticLabel: 'Warcraft card sizing example',
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [

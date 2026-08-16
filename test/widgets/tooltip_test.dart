@@ -19,8 +19,9 @@ void main() {
       expect(find.text('Hover me'), findsOneWidget);
     });
 
-    testWidgets('exposes a combined title+body accessible tooltip string',
-        (tester) async {
+    testWidgets('exposes a combined title+body accessible tooltip string', (
+      tester,
+    ) async {
       final handle = tester.ensureSemantics();
 
       await tester.pumpWidget(
@@ -40,8 +41,9 @@ void main() {
       handle.dispose();
     });
 
-    testWidgets('renders for every rarity variant without throwing',
-        (tester) async {
+    testWidgets('renders for every rarity variant without throwing', (
+      tester,
+    ) async {
       for (final variant in WarcraftTooltipVariant.values) {
         await tester.pumpWidget(
           MaterialApp(
@@ -57,6 +59,38 @@ void main() {
         await tester.pump();
         expect(tester.takeException(), isNull);
       }
+    });
+
+    testWidgets('forwards timing, placement, and sizing configuration', (
+      tester,
+    ) async {
+      const constraints = BoxConstraints(maxWidth: 240);
+      await tester.pumpWidget(
+        const MaterialApp(
+          home: Scaffold(
+            body: WarcraftTooltip(
+              title: 'Item',
+              waitDuration: Duration(milliseconds: 400),
+              showDuration: Duration(seconds: 3),
+              exitDuration: Duration(milliseconds: 250),
+              verticalOffset: 16,
+              preferBelow: false,
+              constraints: constraints,
+              enableTapToDismiss: false,
+              child: Text('Hover me'),
+            ),
+          ),
+        ),
+      );
+
+      final tooltip = tester.widget<Tooltip>(find.byType(Tooltip));
+      expect(tooltip.waitDuration, const Duration(milliseconds: 400));
+      expect(tooltip.showDuration, const Duration(seconds: 3));
+      expect(tooltip.exitDuration, const Duration(milliseconds: 250));
+      expect(tooltip.verticalOffset, 16);
+      expect(tooltip.preferBelow, isFalse);
+      expect(tooltip.constraints, constraints);
+      expect(tooltip.enableTapToDismiss, isFalse);
     });
   });
 }

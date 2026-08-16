@@ -2,6 +2,10 @@ import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 
+/// Called when a [WarcraftBorderBox] frame asset cannot be resolved.
+typedef WarcraftAssetErrorCallback =
+    void Function(Object error, StackTrace? stackTrace);
+
 /// Renders [asset] as a 9-slice (or, with a zero top/bottom inset, a
 /// horizontal 3-slice) frame around [child].
 ///
@@ -27,7 +31,11 @@ class WarcraftBorderBox extends StatefulWidget {
     this.alignment,
     this.tileCenter = false,
     this.tileCenterInsets = EdgeInsets.zero,
-  });
+    this.package = 'warcraft_flutter_components',
+    this.filterQuality = FilterQuality.high,
+    this.fallbackDecoration,
+    this.onAssetError,
+  }) : assert(asset.length > 0, 'asset cannot be empty');
 
   /// The package asset path of the frame image to slice and paint.
   final String asset;
@@ -63,6 +71,21 @@ class WarcraftBorderBox extends StatefulWidget {
   /// stretched center's own edges.
   final EdgeInsets tileCenterInsets;
 
+  /// Asset package containing [asset]. The default resolves this package's
+  /// bundled frames; pass `null` to use an asset from the consuming app.
+  final String? package;
+
+  /// Sampling quality used while painting stretched and tiled slices.
+  final FilterQuality filterQuality;
+
+  /// Decoration shown behind [child] while the frame is loading or when a
+  /// handled asset error leaves no image available.
+  final Decoration? fallbackDecoration;
+
+  /// Optional asset error handler. When absent, failures are reported through
+  /// [FlutterError.reportError].
+  final WarcraftAssetErrorCallback? onAssetError;
+
   @override
   State<WarcraftBorderBox> createState() => _WarcraftBorderBoxState();
 }
@@ -81,7 +104,8 @@ class _WarcraftBorderBoxState extends State<WarcraftBorderBox> {
   @override
   void didUpdateWidget(covariant WarcraftBorderBox oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.asset != widget.asset) {
+    if (oldWidget.asset != widget.asset ||
+        oldWidget.package != widget.package) {
       _resolveImage();
     }
   }
@@ -94,9 +118,8 @@ class _WarcraftBorderBoxState extends State<WarcraftBorderBox> {
   }
 
   void _resolveImage() {
-    final provider =
-        AssetImage(widget.asset, package: 'warcraft_flutter_components');
-    final stream = provider.resolve(const ImageConfiguration());
+    final provider = AssetImage(widget.asset, package: widget.package);
+    final stream = provider.resolve(createLocalImageConfiguration(context));
 
     // The stream key is stable for an unchanged asset/configuration, so
     // dependency changes that don't actually affect asset resolution (e.g.
@@ -118,20 +141,27 @@ class _WarcraftBorderBoxState extends State<WarcraftBorderBox> {
           _image = info.image;
         });
         if (previous != null) {
-          SchedulerBinding.instance
-              .addPostFrameCallback((_) => previous.dispose());
+          SchedulerBinding.instance.addPostFrameCallback(
+            (_) => previous.dispose(),
+          );
         }
       },
       onError: (exception, stackTrace) {
-        FlutterError.reportError(
-          FlutterErrorDetails(
-            exception: exception,
-            stack: stackTrace,
-            library: 'warcraft_flutter_components',
-            context: ErrorDescription(
-                'resolving WarcraftBorderBox asset ${widget.asset}'),
-          ),
-        );
+        final onAssetError = widget.onAssetError;
+        if (onAssetError != null) {
+          onAssetError(exception, stackTrace);
+        } else {
+          FlutterError.reportError(
+            FlutterErrorDetails(
+              exception: exception,
+              stack: stackTrace,
+              library: 'warcraft_flutter_components',
+              context: ErrorDescription(
+                'resolving WarcraftBorderBox asset ${widget.asset}',
+              ),
+            ),
+          );
+        }
         if (mounted) {
           setState(() => _image = null);
         }
@@ -149,6 +179,7 @@ class _WarcraftBorderBoxState extends State<WarcraftBorderBox> {
 
   @override
   Widget build(BuildContext context) {
+    assert(_debugInsetsAreValid());
     // Only wrap in `Align` when the caller actually asks for alignment.
     // `Align` sizes itself to fill any *bounded* incoming constraint (even
     // a merely-loose one), regardless of the alignment value — so an
@@ -170,28 +201,47 @@ class _WarcraftBorderBoxState extends State<WarcraftBorderBox> {
             sliceInsets: widget.sliceInsets,
             tileCenter: widget.tileCenter,
             tileCenterInsets: widget.tileCenterInsets,
+            filterQuality: widget.filterQuality,
           );
 
-    final painted = CustomPaint(
-      painter: painter,
-      child: content,
-    );
+    final Widget painted = painter == null && widget.fallbackDecoration != null
+        ? DecoratedBox(decoration: widget.fallbackDecoration!, child: content)
+        : CustomPaint(painter: painter, child: content);
 
-    final decorated = widget.boxShadow == null
+    final borderRadius = widget.borderRadius;
+    final clipped = borderRadius == null
         ? painted
-        : DecoratedBox(
-            decoration: BoxDecoration(boxShadow: widget.boxShadow),
-            child: painted,
-          );
+        : ClipRRect(borderRadius: borderRadius, child: painted);
+    final boxShadow = widget.boxShadow;
+    if (boxShadow == null) return clipped;
 
-    if (widget.borderRadius == null) {
-      return decorated;
-    }
-
-    return ClipRRect(
-      borderRadius: widget.borderRadius!,
-      child: decorated,
+    // Keep elevation outside ClipRRect. Clipping the decorated shadow along
+    // with the artwork would cut it off exactly at the frame boundary.
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        borderRadius: borderRadius,
+        boxShadow: boxShadow,
+      ),
+      child: clipped,
     );
+  }
+
+  bool _debugInsetsAreValid() {
+    assert(
+      widget.sliceInsets.left >= 0 &&
+          widget.sliceInsets.top >= 0 &&
+          widget.sliceInsets.right >= 0 &&
+          widget.sliceInsets.bottom >= 0,
+      'sliceInsets cannot contain negative values',
+    );
+    assert(
+      widget.tileCenterInsets.left >= 0 &&
+          widget.tileCenterInsets.top >= 0 &&
+          widget.tileCenterInsets.right >= 0 &&
+          widget.tileCenterInsets.bottom >= 0,
+      'tileCenterInsets cannot contain negative values',
+    );
+    return true;
   }
 }
 
@@ -201,12 +251,14 @@ class _NineSlicePainter extends CustomPainter {
     required this.sliceInsets,
     required this.tileCenter,
     required this.tileCenterInsets,
+    required this.filterQuality,
   });
 
   final ui.Image image;
   final EdgeInsets sliceInsets;
   final bool tileCenter;
   final EdgeInsets tileCenterInsets;
+  final FilterQuality filterQuality;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -231,14 +283,14 @@ class _NineSlicePainter extends CustomPainter {
       image,
       srcCenter,
       dst,
-      Paint()..filterQuality = FilterQuality.high,
+      Paint()..filterQuality = filterQuality,
     );
 
     if (!tileCenter) {
       return;
     }
 
-    final paint = Paint()..filterQuality = FilterQuality.high;
+    final paint = Paint()..filterQuality = filterQuality;
 
     final dstCenter = Rect.fromLTWH(
       left,
@@ -255,10 +307,14 @@ class _NineSlicePainter extends CustomPainter {
     final innerRight = tileCenterInsets.right;
     final innerBottom = tileCenterInsets.bottom;
 
-    final tileSrcWidth =
-        (centerWidth - innerLeft - innerRight).clamp(1.0, centerWidth);
-    final tileSrcHeight =
-        (centerHeight - innerTop - innerBottom).clamp(1.0, centerHeight);
+    final tileSrcWidth = (centerWidth - innerLeft - innerRight).clamp(
+      1.0,
+      centerWidth,
+    );
+    final tileSrcHeight = (centerHeight - innerTop - innerBottom).clamp(
+      1.0,
+      centerHeight,
+    );
 
     final srcTile = Rect.fromLTWH(
       srcCenter.left + innerLeft,
@@ -295,6 +351,7 @@ class _NineSlicePainter extends CustomPainter {
     return oldDelegate.image != image ||
         oldDelegate.sliceInsets != sliceInsets ||
         oldDelegate.tileCenter != tileCenter ||
-        oldDelegate.tileCenterInsets != tileCenterInsets;
+        oldDelegate.tileCenterInsets != tileCenterInsets ||
+        oldDelegate.filterQuality != filterQuality;
   }
 }

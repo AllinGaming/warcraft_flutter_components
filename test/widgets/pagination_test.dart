@@ -4,8 +4,9 @@ import 'package:warcraft_flutter_components/warcraft_flutter_components.dart';
 
 void main() {
   group('WarcraftPagination', () {
-    testWidgets('renders page numbers and an ellipsis for hidden pages',
-        (tester) async {
+    testWidgets('renders page numbers and an ellipsis for hidden pages', (
+      tester,
+    ) async {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
@@ -65,8 +66,9 @@ void main() {
       expect(button.enabled, isFalse);
     });
 
-    testWidgets('tapping Previous invokes onPageChanged with the prior page',
-        (tester) async {
+    testWidgets('tapping Previous invokes onPageChanged with the prior page', (
+      tester,
+    ) async {
       int? tapped;
 
       await tester.pumpWidget(
@@ -87,8 +89,9 @@ void main() {
       expect(tapped, 2);
     });
 
-    testWidgets('tapping Next invokes onPageChanged with the following page',
-        (tester) async {
+    testWidgets('tapping Next invokes onPageChanged with the following page', (
+      tester,
+    ) async {
       int? tapped;
 
       await tester.pumpWidget(
@@ -109,8 +112,9 @@ void main() {
       expect(tapped, 4);
     });
 
-    testWidgets('the visible page window shifts left near the last page',
-        (tester) async {
+    testWidgets('the visible page window shifts left near the last page', (
+      tester,
+    ) async {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
@@ -129,6 +133,77 @@ void main() {
       expect(find.text('9'), findsOneWidget);
       expect(find.text('10'), findsOneWidget);
       expect(find.text('11'), findsNothing);
+    });
+
+    testWidgets('supports localized navigation and page semantics', (
+      tester,
+    ) async {
+      final handle = tester.ensureSemantics();
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: WarcraftPagination(
+              currentPage: 2,
+              pageCount: 3,
+              previousLabel: 'Back',
+              nextLabel: 'Forward',
+              semanticLabel: 'Quest pages',
+              onPageChanged: (_) {},
+            ),
+          ),
+        ),
+      );
+
+      expect(find.text('Back'), findsOneWidget);
+      expect(find.text('Forward'), findsOneWidget);
+      expect(find.bySemanticsLabel('Quest pages'), findsOneWidget);
+      expect(find.bySemanticsLabel('Page 2, current page'), findsOneWidget);
+      handle.dispose();
+    });
+
+    testWidgets('supports fully localized page and ellipsis semantics', (
+      tester,
+    ) async {
+      final handle = tester.ensureSemantics();
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: WarcraftPagination(
+              currentPage: 5,
+              pageCount: 10,
+              pageSemanticLabelBuilder: (page) => 'Idi na stranu $page',
+              currentPageSemanticLabelBuilder: (page) =>
+                  'Strana $page, trenutna',
+              ellipsisSemanticLabel: 'Još strana',
+              onPageChanged: (_) {},
+            ),
+          ),
+        ),
+      );
+
+      expect(find.bySemanticsLabel('Strana 5, trenutna'), findsOneWidget);
+      expect(find.bySemanticsLabel('Idi na stranu 4'), findsOneWidget);
+      expect(find.bySemanticsLabel('Još strana'), findsNWidgets(2));
+      handle.dispose();
+    });
+
+    test('rejects invalid page ranges', () {
+      expect(
+        () => WarcraftPagination(
+          currentPage: 0,
+          pageCount: 5,
+          onPageChanged: (_) {},
+        ),
+        throwsAssertionError,
+      );
+      expect(
+        () => WarcraftPagination(
+          currentPage: 1,
+          pageCount: 0,
+          onPageChanged: (_) {},
+        ),
+        throwsAssertionError,
+      );
     });
   });
 }

@@ -24,6 +24,12 @@ class WarcraftTokens {
   /// Extra-large gap, in logical pixels.
   static const double spacingXl = 24;
 
+  /// Double-extra-large gap, used between major page sections.
+  static const double spacing2xl = 32;
+
+  /// Triple-extra-large gap, used for spacious showcase layouts.
+  static const double spacing3xl = 48;
+
   /// Extra-small font size, in logical pixels.
   static const double typeXs = 10;
 
@@ -39,10 +45,37 @@ class WarcraftTokens {
   /// Large font size, in logical pixels.
   static const double typeLg = 14;
 
+  /// Small heading font size, in logical pixels.
+  static const double typeXl = 18;
+
+  /// Medium heading font size, in logical pixels.
+  static const double type2xl = 24;
+
+  /// Display font size, in logical pixels.
+  static const double type3xl = 32;
+
   /// Opacity applied to disabled interactive widgets.
   static const double disabledOpacity = 0.5;
 
   /// Minimum interactive dimension recommended by both the Material and
   /// iOS HIG accessibility guidelines (48x48 logical pixels).
   static const double minTapTarget = 48.0;
+
+  /// Compact corner radius for controls and badges.
+  static const double radiusSm = 6;
+
+  /// Default corner radius for menus and panels.
+  static const double radiusMd = 10;
+
+  /// Large corner radius for elevated surfaces.
+  static const double radiusLg = 16;
+
+  /// Fast interaction animation duration.
+  static const Duration motionFast = Duration(milliseconds: 120);
+
+  /// Standard component animation duration.
+  static const Duration motionNormal = Duration(milliseconds: 220);
+
+  /// Slower entrance/exit animation duration.
+  static const Duration motionSlow = Duration(milliseconds: 320);
 }

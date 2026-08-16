@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../assets/warcraft_assets.dart';
+import '../foundation/warcraft_faction.dart';
 import '../theme/warcraft_theme.dart';
 import '../theme/warcraft_tokens.dart';
 import 'border_box.dart';
@@ -67,6 +68,7 @@ class WarcraftBadge extends StatelessWidget {
     this.shape = WarcraftBadgeShape.defaultShape,
     this.maxWidth = 160,
     this.sliceInsets = const EdgeInsets.all(2),
+    this.semanticLabel,
   });
 
   /// The content displayed inside the badge.
@@ -91,29 +93,30 @@ class WarcraftBadge extends StatelessWidget {
   /// The nine-slice insets used when rendering the badge's frame asset.
   final EdgeInsets sliceInsets;
 
+  /// Optional accessible label when [child] is purely visual.
+  final String? semanticLabel;
+
   @override
   Widget build(BuildContext context) {
+    final theme = WarcraftTheme.of(context);
     final padding = _paddingForSize(size);
     final textStyle = WarcraftTheme.baseTextStyle(context).copyWith(
       fontSize: _fontSizeForSize(size),
       fontWeight: FontWeight.w600,
-      color: _textColor(),
-      shadows: _textShadows(),
+      color: _textColor(theme),
+      shadows: _textShadows(theme),
     );
 
-    final content = DefaultTextStyle.merge(
-      style: textStyle,
-      child: child,
-    );
+    final content = DefaultTextStyle.merge(style: textStyle, child: child);
 
     final Widget decorated;
     if (variant == WarcraftBadgeVariant.outline) {
       decorated = Container(
         padding: padding,
         decoration: BoxDecoration(
-          color: Colors.black.withAlpha(102),
+          color: theme.surfaceElevated.withAlpha(220),
           borderRadius: _borderRadius(),
-          border: Border.all(color: const Color(0xFF6B4A16)),
+          border: Border.all(color: theme.border),
         ),
         child: content,
       );
@@ -130,15 +133,14 @@ class WarcraftBadge extends StatelessWidget {
       );
     }
 
-    final tinted = _factionBackground(_variantBackground(decorated));
+    final tinted = _factionBackground(_variantBackground(decorated, theme));
 
-    return ConstrainedBox(
+    final badge = ConstrainedBox(
       constraints: BoxConstraints(maxWidth: maxWidth),
-      child: ClipPath(
-        clipper: _clipper(),
-        child: tinted,
-      ),
+      child: ClipPath(clipper: _clipper(), child: tinted),
     );
+    if (semanticLabel == null) return badge;
+    return Semantics(label: semanticLabel, child: badge);
   }
 
   String _borderAsset() {
@@ -176,27 +178,25 @@ class WarcraftBadge extends StatelessWidget {
     }
   }
 
-  Color _textColor() {
+  Color _textColor(WarcraftThemeData theme) {
     switch (variant) {
       case WarcraftBadgeVariant.destructive:
-        return const Color(0xFFFCA5A5);
+        return theme.danger;
       case WarcraftBadgeVariant.secondary:
-        return const Color(0xFFE2E8F0);
+        return theme.mutedForeground;
       case WarcraftBadgeVariant.outline:
-        return const Color(0xFFFDE68A);
+        return theme.primary;
       case WarcraftBadgeVariant.defaultVariant:
-        return const Color(0xFFFEF3C7);
+        return theme.foreground;
     }
   }
 
-  List<Shadow> _textShadows() {
+  List<Shadow> _textShadows(WarcraftThemeData theme) {
     switch (variant) {
       case WarcraftBadgeVariant.destructive:
-        return [Shadow(color: Colors.redAccent.withAlpha(102), blurRadius: 8)];
+        return [Shadow(color: theme.danger.withAlpha(102), blurRadius: 8)];
       case WarcraftBadgeVariant.defaultVariant:
-        return [
-          Shadow(color: WarcraftColors.amber400.withAlpha(102), blurRadius: 8)
-        ];
+        return [Shadow(color: theme.primary.withAlpha(102), blurRadius: 8)];
       default:
         return const [];
     }
@@ -206,7 +206,9 @@ class WarcraftBadge extends StatelessWidget {
     switch (shape) {
       case WarcraftBadgeShape.shield:
         return const BorderRadius.vertical(
-            top: Radius.circular(4), bottom: Radius.circular(12));
+          top: Radius.circular(4),
+          bottom: Radius.circular(12),
+        );
       case WarcraftBadgeShape.banner:
         return BorderRadius.zero;
       case WarcraftBadgeShape.defaultShape:
@@ -219,14 +221,14 @@ class WarcraftBadge extends StatelessWidget {
   /// to read as visually distinct rather than differing only by text color.
   /// Reuses the same wash technique — and the same horde red — as
   /// [_factionBackground].
-  Widget _variantBackground(Widget child) {
+  Widget _variantBackground(Widget child, WarcraftThemeData theme) {
     if (variant != WarcraftBadgeVariant.destructive) {
       return child;
     }
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: const Color(0xFF450A0A).withAlpha(140),
-        border: Border.all(color: const Color(0xFF7F1D1D).withAlpha(153)),
+        color: theme.danger.withAlpha(35),
+        border: Border.all(color: theme.danger.withAlpha(153)),
       ),
       child: child,
     );
@@ -235,18 +237,24 @@ class WarcraftBadge extends StatelessWidget {
   Widget _factionBackground(Widget child) {
     switch (faction) {
       case WarcraftBadgeFaction.alliance:
+        final accent = WarcraftThemeData.forFaction(
+          WarcraftFaction.human,
+        ).primary;
         return DecoratedBox(
           decoration: BoxDecoration(
-            color: const Color(0xFF0F172A).withAlpha(153),
-            border: Border.all(color: const Color(0xFF1E3A8A).withAlpha(128)),
+            color: accent.withAlpha(28),
+            border: Border.all(color: accent.withAlpha(128)),
           ),
           child: child,
         );
       case WarcraftBadgeFaction.horde:
+        final accent = WarcraftThemeData.forFaction(
+          WarcraftFaction.orc,
+        ).primary;
         return DecoratedBox(
           decoration: BoxDecoration(
-            color: const Color(0xFF450A0A).withAlpha(153),
-            border: Border.all(color: const Color(0xFF7F1D1D).withAlpha(128)),
+            color: accent.withAlpha(28),
+            border: Border.all(color: accent.withAlpha(128)),
           ),
           child: child,
         );

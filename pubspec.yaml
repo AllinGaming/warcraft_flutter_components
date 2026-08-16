@@ -1,9 +1,9 @@
 name: warcraft_flutter_components
-description: Warcraft-themed Flutter UI components inspired by WarcraftCN, with 18 accessible, themed widgets and faction variants.
+description: Production-ready fantasy Flutter UI kit with 18 accessible components, faction themes, bundled assets, and responsive interactions.
 homepage: https://github.com/AllinGaming/warcraft_flutter_components
 repository: https://github.com/AllinGaming/warcraft_flutter_components
 issue_tracker: https://github.com/AllinGaming/warcraft_flutter_components/issues
-version: 0.2.0
+version: 0.5.0
 topics:
   - flutter
   - ui
@@ -12,12 +12,13 @@ topics:
   - warcraft
 
 environment:
-  sdk: ">=3.3.0 <4.0.0"
+  sdk: ">=3.9.0 <4.0.0"
+  flutter: ">=3.35.0"
 
 dependencies:
   flutter:
     sdk: flutter
-  flutter_svg: ^2.0.10
+  flutter_svg: ^2.3.0
 
 dev_dependencies:
   flutter_test:

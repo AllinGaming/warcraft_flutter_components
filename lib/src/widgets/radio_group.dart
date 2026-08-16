@@ -28,19 +28,23 @@ class WarcraftRadioGroup<T> extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final content = children
-        .map((child) => Padding(
-              padding: EdgeInsets.only(
-                right: direction == Axis.horizontal ? spacing : 0,
-                bottom: direction == Axis.vertical ? spacing : 0,
-              ),
-              child: child,
-            ))
+        .map(
+          (child) => Padding(
+            padding: EdgeInsets.only(
+              right: direction == Axis.horizontal ? spacing : 0,
+              bottom: direction == Axis.vertical ? spacing : 0,
+            ),
+            child: child,
+          ),
+        )
         .toList();
 
     return direction == Axis.horizontal
         ? Wrap(children: content)
         : Column(
-            crossAxisAlignment: CrossAxisAlignment.start, children: content);
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: content,
+          );
   }
 }
 
@@ -81,77 +85,101 @@ class WarcraftRadio<T> extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final socket = Semantics(
-      inMutuallyExclusiveGroup: true,
-      checked: _selected,
-      enabled: _interactive,
-      child: GestureDetector(
+    final theme = WarcraftTheme.of(context);
+    return MergeSemantics(
+      child: Semantics(
+        container: true,
+        inMutuallyExclusiveGroup: true,
+        checked: _selected,
+        enabled: _interactive,
         onTap: _interactive ? () => onChanged!(value) : null,
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(
-            minWidth: WarcraftTokens.minTapTarget,
-            minHeight: WarcraftTokens.minTapTarget,
-          ),
-          child: Center(
-            child: Opacity(
-              opacity: enabled ? 1 : WarcraftTokens.disabledOpacity,
-              child: Container(
-                width: 22,
-                height: 22,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  gradient: const RadialGradient(
-                    center: Alignment(-0.2, -0.2),
-                    colors: [Color(0xFF3B2F20), Color(0xFF1A140D)],
-                    stops: [0, 1],
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            onTap: _interactive ? () => onChanged!(value) : null,
+            excludeFromSemantics: true,
+            borderRadius: BorderRadius.circular(theme.radius),
+            focusColor: theme.focusRing.withAlpha(45),
+            hoverColor: theme.primary.withAlpha(24),
+            mouseCursor: _interactive
+                ? SystemMouseCursors.click
+                : SystemMouseCursors.basic,
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(
+                minWidth: WarcraftTokens.minTapTarget,
+                minHeight: WarcraftTokens.minTapTarget,
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  SizedBox(
+                    width: WarcraftTokens.minTapTarget,
+                    height: WarcraftTokens.minTapTarget,
+                    child: Center(
+                      child: Opacity(
+                        opacity: enabled ? 1 : theme.disabledOpacity,
+                        child: Container(
+                          width: 22,
+                          height: 22,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            gradient: RadialGradient(
+                              center: const Alignment(-0.2, -0.2),
+                              colors: [theme.surfaceElevated, theme.surface],
+                              stops: const [0, 1],
+                            ),
+                            boxShadow: [
+                              BoxShadow(
+                                color: theme.shadow,
+                                blurRadius: 3,
+                                offset: const Offset(0, 1),
+                              ),
+                            ],
+                          ),
+                          child: AnimatedContainer(
+                            duration: WarcraftTheme.motionDurationOf(context),
+                            margin: const EdgeInsets.all(4),
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: _selected
+                                  ? theme.primary
+                                  : Colors.transparent,
+                              boxShadow: _selected
+                                  ? [
+                                      BoxShadow(
+                                        color: theme.focusRing,
+                                        blurRadius: 6,
+                                      ),
+                                    ]
+                                  : const [],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
                   ),
-                  boxShadow: const [
-                    BoxShadow(
-                        color: Colors.black54,
-                        blurRadius: 3,
-                        offset: Offset(0, 1)),
+                  if (label != null) ...[
+                    const SizedBox(width: WarcraftTokens.spacingSm),
+                    Flexible(
+                      child: DefaultTextStyle.merge(
+                        style: WarcraftTheme.baseTextStyle(context).copyWith(
+                          fontWeight: FontWeight.w600,
+                          fontSize: WarcraftTokens.typeLg,
+                          color: enabled
+                              ? theme.foreground
+                              : theme.mutedForeground,
+                        ),
+                        child: label!,
+                      ),
+                    ),
+                    const SizedBox(width: WarcraftTokens.spacingSm),
                   ],
-                ),
-                child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 200),
-                  margin: const EdgeInsets.all(4),
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: _selected
-                        ? const Color(0xFFD97706)
-                        : Colors.transparent,
-                    boxShadow: _selected
-                        ? const [
-                            BoxShadow(color: Color(0xFFFFE39C), blurRadius: 6),
-                          ]
-                        : const [],
-                  ),
-                ),
+                ],
               ),
             ),
           ),
         ),
       ),
-    );
-
-    if (label == null) {
-      return socket;
-    }
-
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        socket,
-        const SizedBox(width: WarcraftTokens.spacingSm),
-        DefaultTextStyle.merge(
-          style: WarcraftTheme.baseTextStyle(context).copyWith(
-            fontWeight: FontWeight.w600,
-            fontSize: WarcraftTokens.typeLg,
-            color: WarcraftColors.cardForeground,
-          ),
-          child: label!,
-        ),
-      ],
     );
   }
 }

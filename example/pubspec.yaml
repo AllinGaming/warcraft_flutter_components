@@ -1,10 +1,11 @@
 name: warcraft_flutter_components_example
 description: Example app for warcraft_flutter_components.
-version: 1.0.0
+version: 0.5.0
 publish_to: none
 
 environment:
-  sdk: ">=3.3.0 <4.0.0"
+  sdk: ">=3.9.0 <4.0.0"
+  flutter: ">=3.35.0"
 
 dependencies:
   flutter:

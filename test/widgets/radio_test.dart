@@ -1,4 +1,7 @@
+import 'dart:ui' as ui;
+
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:warcraft_flutter_components/warcraft_flutter_components.dart';
 
@@ -20,8 +23,9 @@ void main() {
       expect(find.text('Option A'), findsOneWidget);
     });
 
-    testWidgets('tapping an unselected radio calls onChanged with its value',
-        (tester) async {
+    testWidgets('tapping an unselected radio calls onChanged with its value', (
+      tester,
+    ) async {
       String? selected;
       await tester.pumpWidget(
         MaterialApp(
@@ -36,10 +40,37 @@ void main() {
         ),
       );
 
-      await tester.tap(_socket(find.byType(WarcraftRadio<String>)));
+      await tester.tap(find.text('Option B'));
       await tester.pump();
 
       expect(selected, 'b');
+    });
+
+    testWidgets('label and selection are exposed as one semantic control', (
+      tester,
+    ) async {
+      final handle = tester.ensureSemantics();
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: WarcraftRadio<String>(
+              value: 'a',
+              groupValue: 'a',
+              onChanged: (_) {},
+              label: const Text('Option A'),
+            ),
+          ),
+        ),
+      );
+
+      final boundary = tester.getSemantics(find.bySemanticsLabel('Option A'));
+      final control = boundary
+          .debugListChildrenInOrder(DebugSemanticsDumpOrder.traversalOrder)
+          .single;
+      expect(control.label, 'Option A');
+      expect(control.flagsCollection.isChecked, ui.CheckedState.isTrue);
+      expect(control.flagsCollection.isInMutuallyExclusiveGroup, isTrue);
+      handle.dispose();
     });
 
     testWidgets('disabled radio does not call onChanged', (tester) async {
@@ -119,8 +150,9 @@ void main() {
       expect(columnFinder, findsOneWidget);
     });
 
-    testWidgets('lays out children horizontally with Axis.horizontal',
-        (tester) async {
+    testWidgets('lays out children horizontally with Axis.horizontal', (
+      tester,
+    ) async {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
@@ -152,8 +184,9 @@ void main() {
       expect(wrapFinder, findsOneWidget);
     });
 
-    testWidgets('selecting a radio in the group updates selection',
-        (tester) async {
+    testWidgets('selecting a radio in the group updates selection', (
+      tester,
+    ) async {
       var groupValue = 'a';
       await tester.pumpWidget(
         StatefulBuilder(
@@ -182,20 +215,10 @@ void main() {
         ),
       );
 
-      await tester.tap(_socket(find.byType(WarcraftRadio<String>).at(1)));
+      await tester.tap(find.text('Option B'));
       await tester.pump();
 
       expect(groupValue, 'b');
     });
   });
-}
-
-/// Finds the tappable [GestureDetector] socket inside a [WarcraftRadio],
-/// since the widget's overall bounds (socket + label) can be wider than the
-/// actual tappable circle when a label is present.
-Finder _socket(Finder radioFinder) {
-  return find.descendant(
-    of: radioFinder,
-    matching: find.byType(GestureDetector),
-  );
 }

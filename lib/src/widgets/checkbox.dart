@@ -36,8 +36,10 @@ class WarcraftCheckbox extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = WarcraftTheme.of(context);
+    final interactive = enabled && onChanged != null;
     final checkbox = Opacity(
-      opacity: enabled ? 1 : WarcraftTokens.disabledOpacity,
+      opacity: enabled ? 1 : theme.disabledOpacity,
       child: Container(
         width: WarcraftTokens.minTapTarget,
         height: WarcraftTokens.minTapTarget,
@@ -72,12 +74,26 @@ class WarcraftCheckbox extends StatelessWidget {
       ],
     );
 
-    return Semantics(
-      checked: value,
-      enabled: enabled && onChanged != null,
-      child: GestureDetector(
-        onTap: enabled ? () => onChanged?.call(!value) : null,
-        child: content,
+    return MergeSemantics(
+      child: Semantics(
+        container: true,
+        checked: value,
+        enabled: interactive,
+        onTap: interactive ? () => onChanged?.call(!value) : null,
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            onTap: interactive ? () => onChanged?.call(!value) : null,
+            excludeFromSemantics: true,
+            borderRadius: BorderRadius.circular(theme.radius),
+            focusColor: theme.focusRing.withAlpha(45),
+            hoverColor: theme.primary.withAlpha(24),
+            mouseCursor: interactive
+                ? SystemMouseCursors.click
+                : SystemMouseCursors.basic,
+            child: content,
+          ),
+        ),
       ),
     );
   }
@@ -110,15 +126,15 @@ class WarcraftCheckbox extends StatelessWidget {
   Color _labelColor(BuildContext context) {
     switch (faction) {
       case WarcraftFaction.orc:
-        return const Color(0xFFB91C1C);
+        return WarcraftThemeData.forFaction(faction).primary;
       case WarcraftFaction.elf:
-        return const Color(0xFF15803D);
+        return WarcraftThemeData.forFaction(faction).primary;
       case WarcraftFaction.human:
-        return const Color(0xFF1D4ED8);
+        return WarcraftThemeData.forFaction(faction).primary;
       case WarcraftFaction.undead:
-        return const Color(0xFF6B21A8);
+        return WarcraftThemeData.forFaction(faction).primary;
       case WarcraftFaction.defaultFaction:
-        return const Color(0xFF92400E);
+        return WarcraftTheme.of(context).primary;
     }
   }
 }

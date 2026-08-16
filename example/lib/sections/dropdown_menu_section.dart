@@ -16,8 +16,19 @@ class _DropdownMenuSectionState extends State<DropdownMenuSection> {
 
   List<WarcraftMenuEntry> get _items => [
         const WarcraftMenuLabel('Actions'),
-        WarcraftMenuAction(label: 'Inspect', onSelected: () {}),
-        WarcraftMenuAction(label: 'Equip', onSelected: () {}),
+        WarcraftMenuAction(
+          label: 'Inspect',
+          leading: const Icon(Icons.search_rounded),
+          trailing: const Text('I'),
+          onSelected: () {},
+        ),
+        WarcraftMenuAction(
+          label: 'Equip',
+          leading: const Icon(Icons.shield_outlined),
+          trailing: const Text('E'),
+          onSelected: () {},
+        ),
+        const WarcraftMenuAction(label: 'Requires level 40', enabled: false),
         const WarcraftMenuSeparator(),
         WarcraftMenuCheckbox(
           label: 'Auto-equip',

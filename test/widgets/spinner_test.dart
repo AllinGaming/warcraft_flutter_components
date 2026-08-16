@@ -6,9 +6,7 @@ void main() {
   group('WarcraftSpinner', () {
     testWidgets('renders at its requested size', (tester) async {
       await tester.pumpWidget(
-        const MaterialApp(
-          home: Scaffold(body: WarcraftSpinner(size: 64)),
-        ),
+        const MaterialApp(home: Scaffold(body: WarcraftSpinner(size: 64))),
       );
 
       final size = tester.getSize(find.byType(WarcraftSpinner));
@@ -19,27 +17,46 @@ void main() {
       final handle = tester.ensureSemantics();
 
       await tester.pumpWidget(
-        const MaterialApp(
-          home: Scaffold(body: WarcraftSpinner()),
-        ),
+        const MaterialApp(home: Scaffold(body: WarcraftSpinner())),
       );
 
       expect(find.bySemanticsLabel('Loading'), findsOneWidget);
       handle.dispose();
     });
 
-    testWidgets('animates without throwing across several frames',
-        (tester) async {
+    testWidgets('animates without throwing across several frames', (
+      tester,
+    ) async {
       await tester.pumpWidget(
-        const MaterialApp(
-          home: Scaffold(body: WarcraftSpinner()),
-        ),
+        const MaterialApp(home: Scaffold(body: WarcraftSpinner())),
       );
 
       await tester.pump(const Duration(milliseconds: 500));
       await tester.pump(const Duration(milliseconds: 500));
 
       expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('pauses when reduced motion is requested', (tester) async {
+      await tester.pumpWidget(
+        const MaterialApp(
+          home: MediaQuery(
+            data: MediaQueryData(disableAnimations: true),
+            child: Scaffold(body: WarcraftSpinner()),
+          ),
+        ),
+      );
+
+      final spinnerTransform = find.descendant(
+        of: find.byType(WarcraftSpinner),
+        matching: find.byType(Transform),
+      );
+      List<double> transform() =>
+          tester.widget<Transform>(spinnerTransform).transform.storage;
+
+      final before = List<double>.of(transform());
+      await tester.pump(const Duration(milliseconds: 600));
+      expect(transform(), before);
     });
   });
 }

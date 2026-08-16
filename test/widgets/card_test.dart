@@ -7,31 +7,31 @@ void main() {
     testWidgets('renders its child', (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
-          home: Scaffold(
-            body: WarcraftCard(child: Text('Card body')),
-          ),
+          home: Scaffold(body: WarcraftCard(child: Text('Card body'))),
         ),
       );
 
       expect(find.text('Card body'), findsOneWidget);
     });
 
-    testWidgets('regression: no minHeight leaves the card sized to its content',
-        (tester) async {
-      await tester.pumpWidget(
-        const MaterialApp(
-          home: Scaffold(
-            body: Align(
-              alignment: Alignment.topLeft,
-              child: WarcraftCard(child: Text('One line')),
+    testWidgets(
+      'regression: no minHeight leaves the card sized to its content',
+      (tester) async {
+        await tester.pumpWidget(
+          const MaterialApp(
+            home: Scaffold(
+              body: Align(
+                alignment: Alignment.topLeft,
+                child: WarcraftCard(child: Text('One line')),
+              ),
             ),
           ),
-        ),
-      );
+        );
 
-      final height = tester.getSize(find.byType(WarcraftCard)).height;
-      expect(height, lessThan(200));
-    });
+        final height = tester.getSize(find.byType(WarcraftCard)).height;
+        expect(height, lessThan(200));
+      },
+    );
 
     testWidgets('honors an explicit minHeight when provided', (tester) async {
       await tester.pumpWidget(
@@ -48,11 +48,39 @@ void main() {
       final height = tester.getSize(find.byType(WarcraftCard)).height;
       expect(height, greaterThanOrEqualTo(300));
     });
+
+    testWidgets('supports elevation and a semantic region label', (
+      tester,
+    ) async {
+      final handle = tester.ensureSemantics();
+      await tester.pumpWidget(
+        const MaterialApp(
+          home: Scaffold(
+            body: WarcraftCard(
+              elevation: 8,
+              semanticLabel: 'Quest summary',
+              child: Text('One line'),
+            ),
+          ),
+        ),
+      );
+
+      final borderBox = tester.widget<WarcraftBorderBox>(
+        find.descendant(
+          of: find.byType(WarcraftCard),
+          matching: find.byType(WarcraftBorderBox),
+        ),
+      );
+      expect(borderBox.boxShadow, isNotEmpty);
+      expect(find.bySemanticsLabel(RegExp('Quest summary')), findsOneWidget);
+      handle.dispose();
+    });
   });
 
   group('WarcraftCard sections', () {
-    testWidgets('WarcraftCardHeader renders inside a WarcraftCard',
-        (tester) async {
+    testWidgets('WarcraftCardHeader renders inside a WarcraftCard', (
+      tester,
+    ) async {
       await tester.pumpWidget(
         const MaterialApp(
           home: Scaffold(
@@ -72,8 +100,9 @@ void main() {
       );
     });
 
-    testWidgets('WarcraftCardContent renders inside a WarcraftCard',
-        (tester) async {
+    testWidgets('WarcraftCardContent renders inside a WarcraftCard', (
+      tester,
+    ) async {
       await tester.pumpWidget(
         const MaterialApp(
           home: Scaffold(
@@ -93,8 +122,9 @@ void main() {
       );
     });
 
-    testWidgets('WarcraftCardFooter renders inside a WarcraftCard',
-        (tester) async {
+    testWidgets('WarcraftCardFooter renders inside a WarcraftCard', (
+      tester,
+    ) async {
       await tester.pumpWidget(
         const MaterialApp(
           home: Scaffold(
@@ -115,29 +145,31 @@ void main() {
     });
 
     testWidgets(
-        'WarcraftCardSection renders its child with the default padding',
-        (tester) async {
-      await tester.pumpWidget(
-        const MaterialApp(
-          home: Scaffold(
-            body: WarcraftCard(
-              child: WarcraftCardSection(child: Text('Section text')),
+      'WarcraftCardSection renders its child with the default padding',
+      (tester) async {
+        await tester.pumpWidget(
+          const MaterialApp(
+            home: Scaffold(
+              body: WarcraftCard(
+                child: WarcraftCardSection(child: Text('Section text')),
+              ),
             ),
           ),
-        ),
-      );
+        );
 
-      expect(
-        find.descendant(
-          of: find.byType(WarcraftCard),
-          matching: find.text('Section text'),
-        ),
-        findsOneWidget,
-      );
-    });
+        expect(
+          find.descendant(
+            of: find.byType(WarcraftCard),
+            matching: find.text('Section text'),
+          ),
+          findsOneWidget,
+        );
+      },
+    );
 
-    testWidgets('WarcraftCard composes header, content and footer together',
-        (tester) async {
+    testWidgets('WarcraftCard composes header, content and footer together', (
+      tester,
+    ) async {
       await tester.pumpWidget(
         const MaterialApp(
           home: Scaffold(

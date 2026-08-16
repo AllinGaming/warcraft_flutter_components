@@ -16,35 +16,37 @@ void main() {
     });
 
     testWidgets(
-        'regression: with no explicit width, the shimmer sweep uses the actual layout width',
-        (tester) async {
-      // Constrain the ambient width well below the old hardcoded 200px
-      // fallback so a shimmer still hardcoded to 200 would be visibly wrong
-      // relative to the rendered box.
-      await tester.pumpWidget(
-        const MaterialApp(
-          home: Scaffold(
-            body: SizedBox(
-              width: 80,
-              height: 16,
-              child: WarcraftSkeleton(height: 16),
+      'regression: with no explicit width, the shimmer sweep uses the actual layout width',
+      (tester) async {
+        // Constrain the ambient width well below the old hardcoded 200px
+        // fallback so a shimmer still hardcoded to 200 would be visibly wrong
+        // relative to the rendered box.
+        await tester.pumpWidget(
+          const MaterialApp(
+            home: Scaffold(
+              body: SizedBox(
+                width: 80,
+                height: 16,
+                child: WarcraftSkeleton(height: 16),
+              ),
             ),
           ),
-        ),
-      );
+        );
 
-      final size = tester.getSize(find.byType(WarcraftSkeleton));
-      expect(size.width, 80);
+        final size = tester.getSize(find.byType(WarcraftSkeleton));
+        expect(size.width, 80);
 
-      // The animated shimmer must not throw across its full sweep cycle at
-      // this narrow width.
-      await tester.pump(const Duration(milliseconds: 1250));
-      await tester.pump(const Duration(milliseconds: 1250));
-      expect(tester.takeException(), isNull);
-    });
+        // The animated shimmer must not throw across its full sweep cycle at
+        // this narrow width.
+        await tester.pump(const Duration(milliseconds: 1250));
+        await tester.pump(const Duration(milliseconds: 1250));
+        expect(tester.takeException(), isNull);
+      },
+    );
 
-    testWidgets('renders every shape/faction combination without throwing',
-        (tester) async {
+    testWidgets('renders every shape/faction combination without throwing', (
+      tester,
+    ) async {
       for (final shape in WarcraftSkeletonShape.values) {
         for (final faction in WarcraftFaction.values) {
           await tester.pumpWidget(
@@ -76,6 +78,27 @@ void main() {
 
       expect(find.bySemanticsLabel('Loading'), findsOneWidget);
       handle.dispose();
+    });
+
+    testWidgets('can render as a static placeholder', (tester) async {
+      await tester.pumpWidget(
+        const MaterialApp(
+          home: Scaffold(
+            body: WarcraftSkeleton(width: 100, height: 20, animate: false),
+          ),
+        ),
+      );
+
+      final shimmerTransform = find.descendant(
+        of: find.byType(WarcraftSkeleton),
+        matching: find.byType(Transform),
+      );
+      List<double> transform() =>
+          tester.widget<Transform>(shimmerTransform).transform.storage;
+
+      final before = List<double>.of(transform());
+      await tester.pump(const Duration(seconds: 1));
+      expect(transform(), before);
     });
   });
 }

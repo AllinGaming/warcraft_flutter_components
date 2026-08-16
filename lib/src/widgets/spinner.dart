@@ -8,16 +8,21 @@ class WarcraftSpinner extends StatefulWidget {
   const WarcraftSpinner({
     super.key,
     this.size = 48,
-    this.color = WarcraftColors.amber400,
+    this.color,
+    this.accentColor,
     this.strokeWidth = 4,
     this.semanticLabel = 'Loading',
-  });
+  }) : assert(size > 0, 'size must be greater than zero'),
+       assert(strokeWidth > 0, 'strokeWidth must be greater than zero');
 
   /// The width and height of the spinner, in logical pixels.
   final double size;
 
   /// The primary color of the spinning ring and rune accents.
-  final Color color;
+  final Color? color;
+
+  /// Color of the inner arc. Defaults to the theme foreground.
+  final Color? accentColor;
 
   /// The thickness of the spinner's ring strokes.
   final double strokeWidth;
@@ -44,6 +49,20 @@ class _WarcraftSpinnerState extends State<WarcraftSpinner>
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final reduceMotion =
+        MediaQuery.maybeOf(context)?.disableAnimations ?? false;
+    if (reduceMotion && _controller.isAnimating) {
+      _controller
+        ..stop()
+        ..value = 0.15;
+    } else if (!reduceMotion && !_controller.isAnimating) {
+      _controller.repeat();
+    }
+  }
+
+  @override
   void dispose() {
     _controller.dispose();
     super.dispose();
@@ -51,34 +70,40 @@ class _WarcraftSpinnerState extends State<WarcraftSpinner>
 
   @override
   Widget build(BuildContext context) {
-    return Semantics(
-      label: widget.semanticLabel,
-      child: SizedBox(
-        width: widget.size,
-        height: widget.size,
-        child: AnimatedBuilder(
-          animation: _controller,
-          builder: (_, __) {
-            return Transform.rotate(
-              angle: _controller.value * 2 * math.pi,
-              child: CustomPaint(
-                painter: _SpinnerPainter(
-                  color: widget.color,
-                  strokeWidth: widget.strokeWidth,
-                ),
+    final theme = WarcraftTheme.of(context);
+    final spinner = SizedBox(
+      width: widget.size,
+      height: widget.size,
+      child: AnimatedBuilder(
+        animation: _controller,
+        builder: (_, _) {
+          return Transform.rotate(
+            angle: _controller.value * 2 * math.pi,
+            child: CustomPaint(
+              painter: _SpinnerPainter(
+                color: widget.color ?? theme.primary,
+                accentColor: widget.accentColor ?? theme.foreground,
+                strokeWidth: widget.strokeWidth,
               ),
-            );
-          },
-        ),
+            ),
+          );
+        },
       ),
     );
+    final label = widget.semanticLabel;
+    return label == null ? spinner : Semantics(label: label, child: spinner);
   }
 }
 
 class _SpinnerPainter extends CustomPainter {
-  _SpinnerPainter({required this.color, required this.strokeWidth});
+  _SpinnerPainter({
+    required this.color,
+    required this.accentColor,
+    required this.strokeWidth,
+  });
 
   final Color color;
+  final Color accentColor;
   final double strokeWidth;
 
   @override
@@ -99,7 +124,7 @@ class _SpinnerPainter extends CustomPainter {
       ..strokeCap = StrokeCap.round;
 
     final accentPaint = Paint()
-      ..color = WarcraftColors.amber100
+      ..color = accentColor
       ..style = PaintingStyle.stroke
       ..strokeWidth = strokeWidth * 0.7
       ..strokeCap = StrokeCap.round;
@@ -135,7 +160,8 @@ class _SpinnerPainter extends CustomPainter {
       final angle = startAngle + i * (2 * math.pi / 3);
       final start =
           center + Offset(math.cos(angle), math.sin(angle)) * runeRadius;
-      final end = center +
+      final end =
+          center +
           Offset(math.cos(angle + 0.4), math.sin(angle + 0.4)) * runeRadius;
       canvas.drawLine(start, end, runePaint);
     }
@@ -143,6 +169,8 @@ class _SpinnerPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant _SpinnerPainter oldDelegate) {
-    return oldDelegate.color != color || oldDelegate.strokeWidth != strokeWidth;
+    return oldDelegate.color != color ||
+        oldDelegate.accentColor != accentColor ||
+        oldDelegate.strokeWidth != strokeWidth;
   }
 }

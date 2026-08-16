@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:warcraft_flutter_components_example/main.dart';
@@ -15,5 +16,19 @@ void main() {
     expect(find.text('Buttons'), findsOneWidget);
     expect(find.text('Toast'), findsOneWidget);
     expect(find.text('Cursor'), findsOneWidget);
+  });
+
+  testWidgets('showcase remains overflow-free on a narrow mobile viewport',
+      (tester) async {
+    tester.view.physicalSize = const Size(390, 844);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    await tester.pumpWidget(const WarcraftExampleApp());
+    await tester.pump(const Duration(milliseconds: 100));
+
+    expect(tester.takeException(), isNull);
+    expect(find.text('FORGE YOUR INTERFACE'), findsOneWidget);
   });
 }

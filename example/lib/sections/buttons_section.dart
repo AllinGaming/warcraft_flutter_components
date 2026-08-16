@@ -17,6 +17,20 @@ class ButtonsSection extends StatelessWidget {
           children: [
             WarcraftButton(onPressed: () {}, child: const Text('Default')),
             WarcraftButton(
+              size: WarcraftButtonSize.lg,
+              maxWidth: 280,
+              semanticLabel: 'Begin adventure',
+              onPressed: () {},
+              child: const Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.bolt_rounded),
+                  SizedBox(width: 8),
+                  Text('Primary Quest'),
+                ],
+              ),
+            ),
+            WarcraftButton(
               variant: WarcraftButtonVariant.frame,
               onPressed: () {},
               child: const Text('Frame'),
@@ -33,6 +47,12 @@ class ButtonsSection extends StatelessWidget {
               child: const Text('Small Frame'),
             ),
             const WarcraftButton(onPressed: null, child: Text('Disabled')),
+            const WarcraftButton(
+              isLoading: true,
+              loadingLabel: 'Forging',
+              onPressed: _noop,
+              child: Text('Craft'),
+            ),
           ],
         ),
         const SizedBox(height: 8),
@@ -45,3 +65,5 @@ class ButtonsSection extends StatelessWidget {
     );
   }
 }
+
+void _noop() {}

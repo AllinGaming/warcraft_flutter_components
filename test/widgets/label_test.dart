@@ -7,9 +7,7 @@ void main() {
     testWidgets('renders its text', (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
-          home: Scaffold(
-            body: WarcraftLabel(text: 'Character name'),
-          ),
+          home: Scaffold(body: WarcraftLabel(text: 'Character name')),
         ),
       );
 
@@ -18,6 +16,7 @@ void main() {
     });
 
     testWidgets('isRequired renders the required marker', (tester) async {
+      final handle = tester.ensureSemantics();
       await tester.pumpWidget(
         const MaterialApp(
           home: Scaffold(
@@ -28,6 +27,26 @@ void main() {
 
       expect(find.text('Character name'), findsOneWidget);
       expect(find.text('✦'), findsOneWidget);
+      expect(find.bySemanticsLabel('Character name, required'), findsOneWidget);
+      handle.dispose();
+    });
+
+    testWidgets('supports localized required semantics', (tester) async {
+      final handle = tester.ensureSemantics();
+      await tester.pumpWidget(
+        const MaterialApp(
+          home: Scaffold(
+            body: WarcraftLabel(
+              text: 'Ime heroja',
+              isRequired: true,
+              requiredSemanticLabel: 'obavezno',
+            ),
+          ),
+        ),
+      );
+
+      expect(find.bySemanticsLabel('Ime heroja, obavezno'), findsOneWidget);
+      handle.dispose();
     });
 
     testWidgets('renders across variants', (tester) async {

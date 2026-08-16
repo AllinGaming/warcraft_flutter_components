@@ -20,6 +20,8 @@ class WarcraftLabel extends StatelessWidget {
     this.variant = WarcraftLabelVariant.defaultVariant,
     this.isRequired = false,
     this.enabled = true,
+    this.semanticLabel,
+    this.requiredSemanticLabel = 'required',
   });
 
   /// The label text to display.
@@ -35,23 +37,30 @@ class WarcraftLabel extends StatelessWidget {
   /// indicate a disabled state (`false`).
   final bool enabled;
 
+  /// Optional accessible replacement for [text].
+  final String? semanticLabel;
+
+  /// Localizable word appended to the accessible label when [isRequired]
+  /// is true. The decorative marker itself is excluded from semantics.
+  final String requiredSemanticLabel;
+
   @override
   Widget build(BuildContext context) {
+    final theme = WarcraftTheme.of(context);
     final style = WarcraftTheme.baseTextStyle(context).copyWith(
       fontSize: WarcraftTokens.typeMd,
       fontWeight: FontWeight.w600,
       color: variant == WarcraftLabelVariant.muted
-          ? WarcraftColors.amber200.withAlpha(153)
-          : WarcraftColors.amber200,
+          ? theme.mutedForeground
+          : theme.primary,
       shadows: variant == WarcraftLabelVariant.defaultVariant
-          ? [
-              Shadow(
-                  color: WarcraftColors.amber400.withAlpha(64), blurRadius: 6)
-            ]
+          ? [Shadow(color: theme.primary.withAlpha(64), blurRadius: 6)]
           : const [],
     );
 
-    return Opacity(
+    final accessibleLabel =
+        semanticLabel ?? (isRequired ? '$text, $requiredSemanticLabel' : null);
+    final label = Opacity(
       opacity: enabled ? 1 : WarcraftTokens.disabledOpacity,
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -59,13 +68,18 @@ class WarcraftLabel extends StatelessWidget {
           Text(text, style: style),
           if (isRequired) ...[
             const SizedBox(width: WarcraftTokens.spacingXs),
-            Text(
-              '✦',
-              style: style.copyWith(color: Colors.redAccent),
-            ),
+            Text('✦', style: style.copyWith(color: theme.danger)),
           ],
         ],
       ),
     );
+
+    return accessibleLabel == null
+        ? label
+        : Semantics(
+            label: accessibleLabel,
+            excludeSemantics: true,
+            child: label,
+          );
   }
 }

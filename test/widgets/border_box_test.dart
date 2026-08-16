@@ -23,31 +23,33 @@ void main() {
     });
 
     testWidgets(
-        'an invalid asset path reports the failure but the widget tree keeps rendering',
-        (tester) async {
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
-            body: WarcraftBorderBox(
-              asset: 'assets/warcraft/does-not-exist.webp',
-              sliceInsets: const EdgeInsets.all(8),
-              child: const Text('Still visible'),
+      'an invalid asset path reports the failure but the widget tree keeps rendering',
+      (tester) async {
+        await tester.pumpWidget(
+          MaterialApp(
+            home: Scaffold(
+              body: WarcraftBorderBox(
+                asset: 'assets/warcraft/does-not-exist.webp',
+                sliceInsets: const EdgeInsets.all(8),
+                child: const Text('Still visible'),
+              ),
             ),
           ),
-        ),
-      );
-      await tester.pump();
+        );
+        await tester.pump();
 
-      // The child still renders even though the frame image failed to
-      // resolve. The failure is surfaced via FlutterError (so a developer
-      // notices a bad asset path) rather than swallowed — consume it here
-      // so the test doesn't fail on the reported error itself.
-      expect(find.text('Still visible'), findsOneWidget);
-      expect(tester.takeException(), isFlutterError);
-    });
+        // The child still renders even though the frame image failed to
+        // resolve. The failure is surfaced via FlutterError (so a developer
+        // notices a bad asset path) rather than swallowed — consume it here
+        // so the test doesn't fail on the reported error itself.
+        expect(find.text('Still visible'), findsOneWidget);
+        expect(tester.takeException(), isFlutterError);
+      },
+    );
 
-    testWidgets('shrink-wraps its content by default (no forced alignment)',
-        (tester) async {
+    testWidgets('shrink-wraps its content by default (no forced alignment)', (
+      tester,
+    ) async {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
@@ -68,8 +70,9 @@ void main() {
       expect(size.height, lessThan(100));
     });
 
-    testWidgets('an explicit alignment positions the child within the frame',
-        (tester) async {
+    testWidgets('an explicit alignment positions the child within the frame', (
+      tester,
+    ) async {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
@@ -102,9 +105,7 @@ void main() {
             body: WarcraftBorderBox(
               asset: WarcraftAssets.cardBg,
               sliceInsets: const EdgeInsets.all(48),
-              boxShadow: const [
-                BoxShadow(blurRadius: 8),
-              ],
+              boxShadow: const [BoxShadow(blurRadius: 8)],
               child: const Text('Shadowed'),
             ),
           ),
@@ -116,8 +117,80 @@ void main() {
       expect(tester.takeException(), isNull);
     });
 
-    testWidgets('tileCenter tiles the center region across a large panel',
-        (tester) async {
+    testWidgets('keeps elevation outside the rounded clip', (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: WarcraftBorderBox(
+              asset: WarcraftAssets.cardBg,
+              sliceInsets: const EdgeInsets.all(48),
+              borderRadius: BorderRadius.circular(12),
+              boxShadow: const [BoxShadow(blurRadius: 12)],
+              child: const Text('Elevated'),
+            ),
+          ),
+        ),
+      );
+
+      final clip = find
+          .descendant(
+            of: find.byType(WarcraftBorderBox),
+            matching: find.byType(ClipRRect),
+          )
+          .evaluate()
+          .single;
+      expect(clip.findAncestorWidgetOfExactType<DecoratedBox>(), isNotNull);
+    });
+
+    testWidgets('can resolve a consuming-app asset with package null', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        const MaterialApp(
+          home: Scaffold(
+            body: WarcraftBorderBox(
+              asset: WarcraftAssets.cardBg,
+              package: null,
+              sliceInsets: EdgeInsets.all(48),
+              child: Text('App-owned frame'),
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('App-owned frame'), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('supports handled errors and a fallback decoration', (
+      tester,
+    ) async {
+      Object? capturedError;
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: WarcraftBorderBox(
+              asset: 'missing-frame.webp',
+              package: null,
+              sliceInsets: const EdgeInsets.all(8),
+              fallbackDecoration: const BoxDecoration(color: Colors.deepPurple),
+              onAssetError: (error, _) => capturedError = error,
+              child: const Text('Fallback frame'),
+            ),
+          ),
+        ),
+      );
+      await tester.pump();
+
+      expect(capturedError, isNotNull);
+      expect(find.text('Fallback frame'), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('tileCenter tiles the center region across a large panel', (
+      tester,
+    ) async {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
@@ -136,60 +209,63 @@ void main() {
       expect(tester.takeException(), isNull);
     });
 
-    testWidgets('tileCenter on a panel too small to tile falls back gracefully',
-        (tester) async {
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
-            body: WarcraftBorderBox(
-              asset: WarcraftAssets.cardBg,
-              sliceInsets: const EdgeInsets.all(48),
-              tileCenter: true,
-              child: const SizedBox(width: 4, height: 4),
+    testWidgets(
+      'tileCenter on a panel too small to tile falls back gracefully',
+      (tester) async {
+        await tester.pumpWidget(
+          MaterialApp(
+            home: Scaffold(
+              body: WarcraftBorderBox(
+                asset: WarcraftAssets.cardBg,
+                sliceInsets: const EdgeInsets.all(48),
+                tileCenter: true,
+                child: const SizedBox(width: 4, height: 4),
+              ),
             ),
           ),
-        ),
-      );
-      await tester.pump();
+        );
+        await tester.pump();
 
-      expect(tester.takeException(), isNull);
-    });
+        expect(tester.takeException(), isNull);
+      },
+    );
 
     testWidgets(
-        'swapping to a different asset disposes the previous decoded image',
-        (tester) async {
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
-            body: WarcraftBorderBox(
-              asset: WarcraftAssets.cardBg,
-              sliceInsets: const EdgeInsets.all(48),
-              child: const Text('Content'),
+      'swapping to a different asset disposes the previous decoded image',
+      (tester) async {
+        await tester.pumpWidget(
+          MaterialApp(
+            home: Scaffold(
+              body: WarcraftBorderBox(
+                asset: WarcraftAssets.cardBg,
+                sliceInsets: const EdgeInsets.all(48),
+                child: const Text('Content'),
+              ),
             ),
           ),
-        ),
-      );
-      // Let the first asset's image fully decode before swapping, so the
-      // widget actually holds a previous decoded image to dispose (rather
-      // than swapping while `_image` is still null).
-      await tester.pumpAndSettle();
+        );
+        // Let the first asset's image fully decode before swapping, so the
+        // widget actually holds a previous decoded image to dispose (rather
+        // than swapping while `_image` is still null).
+        await tester.pumpAndSettle();
 
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
-            body: WarcraftBorderBox(
-              asset: WarcraftAssets.accordionHeader,
-              sliceInsets: const EdgeInsets.all(6),
-              child: const Text('Content'),
+        await tester.pumpWidget(
+          MaterialApp(
+            home: Scaffold(
+              body: WarcraftBorderBox(
+                asset: WarcraftAssets.accordionHeader,
+                sliceInsets: const EdgeInsets.all(6),
+                child: const Text('Content'),
+              ),
             ),
           ),
-        ),
-      );
-      // The new image resolves, the old one is scheduled for disposal via a
-      // post-frame callback, and further pumps run that callback.
-      await tester.pumpAndSettle();
+        );
+        // The new image resolves, the old one is scheduled for disposal via a
+        // post-frame callback, and further pumps run that callback.
+        await tester.pumpAndSettle();
 
-      expect(tester.takeException(), isNull);
-    });
+        expect(tester.takeException(), isNull);
+      },
+    );
   });
 }

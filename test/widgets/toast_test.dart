@@ -4,8 +4,9 @@ import 'package:warcraft_flutter_components/warcraft_flutter_components.dart';
 
 void main() {
   group('WarcraftToast', () {
-    testWidgets('shows a message and auto-dismisses after its duration',
-        (tester) async {
+    testWidgets('shows a message and auto-dismisses after its duration', (
+      tester,
+    ) async {
       late BuildContext capturedContext;
 
       await tester.pumpWidget(
@@ -19,7 +20,7 @@ void main() {
         ),
       );
 
-      WarcraftToast.show(
+      final controller = WarcraftToast.show(
         capturedContext,
         message: 'Quest complete',
         duration: const Duration(milliseconds: 300),
@@ -38,6 +39,7 @@ void main() {
       await tester.pump(const Duration(milliseconds: 200)); // exit settled
 
       expect(find.text('Quest complete'), findsNothing);
+      expect(controller.isDismissed, isTrue);
     });
 
     testWidgets('tapping a toast dismisses it immediately', (tester) async {
@@ -82,11 +84,17 @@ void main() {
         ),
       );
 
-      WarcraftToast.show(capturedContext,
-          message: 'First', duration: const Duration(seconds: 30));
+      WarcraftToast.show(
+        capturedContext,
+        message: 'First',
+        duration: const Duration(seconds: 30),
+      );
       await tester.pumpAndSettle();
-      WarcraftToast.show(capturedContext,
-          message: 'Second', duration: const Duration(seconds: 30));
+      WarcraftToast.show(
+        capturedContext,
+        message: 'Second',
+        duration: const Duration(seconds: 30),
+      );
       await tester.pumpAndSettle();
 
       expect(find.text('First'), findsOneWidget);
@@ -143,6 +151,70 @@ void main() {
         await tester.pumpAndSettle();
         expect(tester.takeException(), isNull);
       }
+    });
+
+    testWidgets('controller dismisses early and a cleaned stack can reopen', (
+      tester,
+    ) async {
+      late BuildContext capturedContext;
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Builder(
+            builder: (context) {
+              capturedContext = context;
+              return const Scaffold(body: SizedBox());
+            },
+          ),
+        ),
+      );
+
+      final controller = WarcraftToast.show(
+        capturedContext,
+        message: 'Controlled toast',
+        duration: const Duration(seconds: 30),
+      );
+      await tester.pumpAndSettle();
+      controller.dismiss();
+      controller.dismiss();
+      await tester.pumpAndSettle();
+
+      expect(controller.isDismissed, isTrue);
+      expect(find.text('Controlled toast'), findsNothing);
+
+      WarcraftToast.show(
+        capturedContext,
+        message: 'Reopened stack',
+        duration: const Duration(seconds: 30),
+      );
+      await tester.pumpAndSettle();
+      expect(find.text('Reopened stack'), findsOneWidget);
+    });
+
+    testWidgets('controller can dismiss before the overlay mounts', (
+      tester,
+    ) async {
+      late BuildContext capturedContext;
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Builder(
+            builder: (context) {
+              capturedContext = context;
+              return const Scaffold(body: SizedBox());
+            },
+          ),
+        ),
+      );
+
+      final controller = WarcraftToast.show(
+        capturedContext,
+        message: 'Never shown',
+        duration: const Duration(seconds: 30),
+      );
+      controller.dismiss();
+      await tester.pumpAndSettle();
+
+      expect(controller.isDismissed, isTrue);
+      expect(find.text('Never shown'), findsNothing);
     });
   });
 }

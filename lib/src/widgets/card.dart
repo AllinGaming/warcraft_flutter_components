@@ -24,6 +24,8 @@ class WarcraftCard extends StatelessWidget {
     this.minHeight,
     this.sliceInsets = const EdgeInsets.all(48),
     this.contentPadding = const EdgeInsets.fromLTRB(62, 56, 62, 44),
+    this.elevation = 0,
+    this.semanticLabel,
   });
 
   /// The content displayed inside the card frame.
@@ -46,23 +48,32 @@ class WarcraftCard extends StatelessWidget {
   /// The padding applied around [child] inside the card frame.
   final EdgeInsets contentPadding;
 
+  /// Visual elevation expressed as shadow blur strength.
+  final double elevation;
+
+  /// Optional accessible description for the card region.
+  final String? semanticLabel;
+
   @override
   Widget build(BuildContext context) {
+    final theme = WarcraftTheme.of(context);
     // `heightFactor: 1` keeps this shrink-wrapped to its own content height
     // (Align otherwise expands to fill any bounded ambient height, e.g. a
     // full Scaffold body) while still left-aligning horizontally when a
     // wider parent gives more width than [maxWidth].
-    return Align(
+    final card = Align(
       alignment: Alignment.centerLeft,
       heightFactor: 1,
       child: ConstrainedBox(
-        constraints:
-            BoxConstraints(maxWidth: maxWidth, minHeight: minHeight ?? 0),
+        constraints: BoxConstraints(
+          maxWidth: maxWidth,
+          minHeight: minHeight ?? 0,
+        ),
         child: SizedBox(
           width: double.infinity,
           child: DefaultTextStyle.merge(
             style: WarcraftTheme.baseTextStyle(context).copyWith(
-              color: WarcraftColors.cardForeground,
+              color: theme.foreground,
               fontSize: size == WarcraftCardSize.sm
                   ? WarcraftTokens.typeMd
                   : WarcraftTokens.typeLg,
@@ -72,12 +83,23 @@ class WarcraftCard extends StatelessWidget {
               sliceInsets: sliceInsets,
               padding: contentPadding,
               borderRadius: BorderRadius.circular(12),
+              boxShadow: elevation > 0
+                  ? [
+                      BoxShadow(
+                        color: theme.shadow,
+                        blurRadius: elevation * 2,
+                        offset: Offset(0, elevation * 0.5),
+                      ),
+                    ]
+                  : null,
               child: child,
             ),
           ),
         ),
       ),
     );
+    if (semanticLabel == null) return card;
+    return Semantics(container: true, label: semanticLabel, child: card);
   }
 }
 
@@ -86,11 +108,7 @@ class WarcraftCard extends StatelessWidget {
 class WarcraftCardSection extends StatelessWidget {
   /// Creates a [WarcraftCardSection] wrapping [child] with optional
   /// [padding].
-  const WarcraftCardSection({
-    super.key,
-    required this.child,
-    this.padding,
-  });
+  const WarcraftCardSection({super.key, required this.child, this.padding});
 
   /// The content displayed within the section.
   final Widget child;
@@ -112,10 +130,7 @@ class WarcraftCardSection extends StatelessWidget {
 /// A [WarcraftCardSection] preset for a card's header area.
 class WarcraftCardHeader extends StatelessWidget {
   /// Creates a [WarcraftCardHeader] wrapping [child].
-  const WarcraftCardHeader({
-    super.key,
-    required this.child,
-  });
+  const WarcraftCardHeader({super.key, required this.child});
 
   /// The content displayed in the header.
   final Widget child;
@@ -132,10 +147,7 @@ class WarcraftCardHeader extends StatelessWidget {
 /// A [WarcraftCardSection] preset for a card's main content area.
 class WarcraftCardContent extends StatelessWidget {
   /// Creates a [WarcraftCardContent] wrapping [child].
-  const WarcraftCardContent({
-    super.key,
-    required this.child,
-  });
+  const WarcraftCardContent({super.key, required this.child});
 
   /// The content displayed in the card body.
   final Widget child;
@@ -149,10 +161,7 @@ class WarcraftCardContent extends StatelessWidget {
 /// A [WarcraftCardSection] preset for a card's footer area.
 class WarcraftCardFooter extends StatelessWidget {
   /// Creates a [WarcraftCardFooter] wrapping [child].
-  const WarcraftCardFooter({
-    super.key,
-    required this.child,
-  });
+  const WarcraftCardFooter({super.key, required this.child});
 
   /// The content displayed in the footer.
   final Widget child;

@@ -40,7 +40,35 @@ enum WarcraftToastPosition {
   bottomCenter,
 
   /// Bottom-right corner of the screen.
-  bottomRight
+  bottomRight,
+}
+
+/// Handle returned by [WarcraftToast.show] for dismissing a toast early.
+class WarcraftToastController {
+  WarcraftToastController._();
+
+  VoidCallback? _onDismiss;
+  bool _isDismissed = false;
+
+  /// Whether this toast has already been dismissed or expired.
+  bool get isDismissed => _isDismissed;
+
+  /// Dismisses the toast. Calling this more than once is safe.
+  void dismiss() {
+    if (_isDismissed) return;
+    _isDismissed = true;
+    _onDismiss?.call();
+  }
+
+  void _attach(VoidCallback callback) {
+    _onDismiss = callback;
+    if (_isDismissed) callback();
+  }
+
+  void _markDismissed() {
+    _isDismissed = true;
+    _onDismiss = null;
+  }
 }
 
 /// Warcraft-themed transient notification, shown via the static [show] API.
@@ -57,38 +85,63 @@ class WarcraftToast {
 
   // Keyed by OverlayState so separate app/test instances (each with their
   // own Overlay) never share or leak toast state into one another.
-  static final Map<OverlayState,
-      Map<WarcraftToastPosition, GlobalKey<_ToastStackState>>> _stacks = {};
+  static final Map<
+    OverlayState,
+    Map<WarcraftToastPosition, GlobalKey<_ToastStackState>>
+  >
+  _stacks = {};
 
   /// Shows a toast anchored at [position]. [duration] controls how long it
   /// stays visible before auto-dismissing; tapping a toast dismisses it
   /// immediately.
-  static void show(
+  static WarcraftToastController show(
     BuildContext context, {
     required String message,
     WarcraftToastType type = WarcraftToastType.defaultType,
     WarcraftFaction faction = WarcraftFaction.defaultFaction,
     WarcraftToastPosition position = WarcraftToastPosition.bottomRight,
     Duration duration = const Duration(seconds: 3),
+    String dismissLabel = 'Dismiss notification',
   }) {
+    assert(!duration.isNegative, 'duration cannot be negative');
     final overlay = Overlay.of(context, rootOverlay: true);
     final positions = _stacks.putIfAbsent(overlay, () => {});
     final key = positions[position] ?? GlobalKey<_ToastStackState>();
+    final controller = WarcraftToastController._();
 
     if (positions[position] == null) {
       positions[position] = key;
-      overlay.insert(
-        OverlayEntry(
-            builder: (context) => _ToastStack(key: key, position: position)),
+      late OverlayEntry entry;
+
+      void removeRegistration() {
+        positions.remove(position);
+        if (positions.isEmpty) _stacks.remove(overlay);
+      }
+
+      void removeEntry() {
+        removeRegistration();
+        if (entry.mounted) entry.remove();
+      }
+
+      entry = OverlayEntry(
+        builder: (context) => _ToastStack(
+          key: key,
+          position: position,
+          onEmpty: removeEntry,
+          onDisposed: removeRegistration,
+        ),
       );
+      overlay.insert(entry);
     }
 
     void addToast() => key.currentState?.add(
-          message: message,
-          type: type,
-          faction: faction,
-          duration: duration,
-        );
+      message: message,
+      type: type,
+      faction: faction,
+      duration: duration,
+      dismissLabel: dismissLabel,
+      controller: controller,
+    );
 
     if (key.currentState != null) {
       addToast();
@@ -97,6 +150,7 @@ class WarcraftToast {
       // built yet; retry once the frame that mounts it has completed.
       WidgetsBinding.instance.addPostFrameCallback((_) => addToast());
     }
+    return controller;
   }
 }
 
@@ -106,20 +160,30 @@ class _ToastData {
     required this.type,
     required this.faction,
     required this.duration,
+    required this.dismissLabel,
+    required this.controller,
   });
 
   final String message;
   final WarcraftToastType type;
   final WarcraftFaction faction;
   final Duration duration;
+  final String dismissLabel;
+  final WarcraftToastController controller;
   Timer? timer;
 }
 
 class _ToastStack extends StatefulWidget {
-  const _ToastStack(
-      {required GlobalKey<_ToastStackState> super.key, required this.position});
+  const _ToastStack({
+    required GlobalKey<_ToastStackState> super.key,
+    required this.position,
+    required this.onEmpty,
+    required this.onDisposed,
+  });
 
   final WarcraftToastPosition position;
+  final VoidCallback onEmpty;
+  final VoidCallback onDisposed;
 
   @override
   State<_ToastStack> createState() => _ToastStackState();
@@ -128,6 +192,7 @@ class _ToastStack extends StatefulWidget {
 class _ToastStackState extends State<_ToastStack> {
   final _listKey = GlobalKey<AnimatedListState>();
   final List<_ToastData> _items = [];
+  Timer? _emptyTimer;
 
   bool get _isTop =>
       widget.position == WarcraftToastPosition.topLeft ||
@@ -139,19 +204,31 @@ class _ToastStackState extends State<_ToastStack> {
     required WarcraftToastType type,
     required WarcraftFaction faction,
     required Duration duration,
+    required String dismissLabel,
+    required WarcraftToastController controller,
   }) {
+    _emptyTimer?.cancel();
     if (_items.length >= WarcraftToast.maxStacked) {
       _removeAt(0, animate: false);
     }
 
     final data = _ToastData(
-        message: message, type: type, faction: faction, duration: duration);
+      message: message,
+      type: type,
+      faction: faction,
+      duration: duration,
+      dismissLabel: dismissLabel,
+      controller: controller,
+    );
     _items.add(data);
     _listKey.currentState?.insertItem(
       _items.length - 1,
-      duration: const Duration(milliseconds: 200),
+      duration: WarcraftTheme.motionDurationOf(context),
     );
-    data.timer = Timer(duration, () => _removeData(data));
+    controller._attach(() => _removeData(data));
+    if (!controller.isDismissed) {
+      data.timer = Timer(duration, () => _removeData(data));
+    }
   }
 
   void _removeData(_ToastData data) {
@@ -162,12 +239,22 @@ class _ToastStackState extends State<_ToastStack> {
   void _removeAt(int index, {bool animate = true}) {
     final data = _items.removeAt(index);
     data.timer?.cancel();
+    data.controller._markDismissed();
+    final exitDuration = animate
+        ? WarcraftTheme.motionDurationOf(context)
+        : Duration.zero;
     _listKey.currentState?.removeItem(
       index,
       (context, animation) =>
           animate ? _buildToast(data, animation) : const SizedBox.shrink(),
-      duration: animate ? const Duration(milliseconds: 200) : Duration.zero,
+      duration: exitDuration,
     );
+    if (_items.isEmpty) {
+      _emptyTimer?.cancel();
+      _emptyTimer = Timer(exitDuration, () {
+        if (mounted && _items.isEmpty) widget.onEmpty();
+      });
+    }
   }
 
   Widget _buildToast(_ToastData data, Animation<double> animation) {
@@ -194,9 +281,12 @@ class _ToastStackState extends State<_ToastStack> {
 
   @override
   void dispose() {
+    _emptyTimer?.cancel();
     for (final item in _items) {
       item.timer?.cancel();
+      item.controller._markDismissed();
     }
+    widget.onDisposed();
     super.dispose();
   }
 
@@ -246,43 +336,57 @@ class _WarcraftToastCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final accent = _accentColor(data.type);
+    final theme = WarcraftTheme.of(context);
+    final accent = _accentColor(data.type, theme);
 
     return Semantics(
       liveRegion: true,
       label: data.message,
-      child: GestureDetector(
-        onTap: onDismiss,
-        child: DecoratedBox(
-          decoration: BoxDecoration(
-            color: _factionTint(data.faction) ?? const Color(0xFF1B130B),
-            borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: accent, width: 1.5),
-            boxShadow: const [
-              BoxShadow(
-                  color: Colors.black87, blurRadius: 16, offset: Offset(0, 4)),
-            ],
-          ),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: WarcraftTokens.spacingMd,
-              vertical: WarcraftTokens.spacingSm,
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(_iconFor(data.type), size: 18, color: accent),
-                const SizedBox(width: WarcraftTokens.spacingSm),
-                Flexible(
-                  child: Text(
-                    data.message,
-                    style: WarcraftTheme.baseTextStyle(context).copyWith(
-                      color: WarcraftColors.amber100,
-                      fontSize: WarcraftTokens.typeBase,
-                    ),
-                  ),
+      hint: data.dismissLabel,
+      button: true,
+      onTap: onDismiss,
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onDismiss,
+          borderRadius: BorderRadius.circular(theme.radius),
+          mouseCursor: SystemMouseCursors.click,
+          focusColor: theme.focusRing.withAlpha(45),
+          hoverColor: theme.primary.withAlpha(24),
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              color: _factionTint(data.faction, theme),
+              borderRadius: BorderRadius.circular(theme.radius),
+              border: Border.all(color: accent, width: 1.5),
+              boxShadow: [
+                BoxShadow(
+                  color: theme.shadow,
+                  blurRadius: 16,
+                  offset: const Offset(0, 4),
                 ),
               ],
+            ),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: WarcraftTokens.spacingMd,
+                vertical: WarcraftTokens.spacingSm,
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(_iconFor(data.type), size: 18, color: accent),
+                  const SizedBox(width: WarcraftTokens.spacingSm),
+                  Flexible(
+                    child: Text(
+                      data.message,
+                      style: WarcraftTheme.baseTextStyle(context).copyWith(
+                        color: theme.foreground,
+                        fontSize: WarcraftTokens.typeBase,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
@@ -290,18 +394,18 @@ class _WarcraftToastCard extends StatelessWidget {
     );
   }
 
-  Color _accentColor(WarcraftToastType type) {
+  Color _accentColor(WarcraftToastType type, WarcraftThemeData theme) {
     switch (type) {
       case WarcraftToastType.success:
-        return const Color(0xFF22C55E);
+        return theme.success;
       case WarcraftToastType.error:
-        return const Color(0xFFEF4444);
+        return theme.danger;
       case WarcraftToastType.warning:
-        return const Color(0xFFF59E0B);
+        return theme.warning;
       case WarcraftToastType.info:
-        return const Color(0xFF3B82F6);
+        return theme.info;
       case WarcraftToastType.defaultType:
-        return const Color(0xFF6B4A16);
+        return theme.border;
     }
   }
 
@@ -320,18 +424,11 @@ class _WarcraftToastCard extends StatelessWidget {
     }
   }
 
-  Color? _factionTint(WarcraftFaction faction) {
-    switch (faction) {
-      case WarcraftFaction.orc:
-        return const Color(0xFF450A0A).withAlpha(230);
-      case WarcraftFaction.elf:
-        return const Color(0xFF0A2C28).withAlpha(230);
-      case WarcraftFaction.human:
-        return const Color(0xFF0F172A).withAlpha(230);
-      case WarcraftFaction.undead:
-        return const Color(0xFF1A1223).withAlpha(230);
-      case WarcraftFaction.defaultFaction:
-        return null;
+  Color _factionTint(WarcraftFaction faction, WarcraftThemeData theme) {
+    if (faction == WarcraftFaction.defaultFaction) {
+      return theme.surfaceElevated;
     }
+    final accent = WarcraftThemeData.forFaction(faction).primary.withAlpha(36);
+    return Color.alphaBlend(accent, theme.surfaceElevated);
   }
 }
