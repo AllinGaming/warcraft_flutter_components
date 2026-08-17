@@ -15,47 +15,47 @@ class _DropdownMenuSectionState extends State<DropdownMenuSection> {
   String _difficulty = 'normal';
 
   List<WarcraftMenuEntry> get _items => [
-        const WarcraftMenuLabel('Actions'),
-        WarcraftMenuAction(
-          label: 'Inspect',
-          leading: const Icon(Icons.search_rounded),
-          trailing: const Text('I'),
-          onSelected: () {},
-        ),
-        WarcraftMenuAction(
-          label: 'Equip',
-          leading: const Icon(Icons.shield_outlined),
-          trailing: const Text('E'),
-          onSelected: () {},
-        ),
-        const WarcraftMenuAction(label: 'Requires level 40', enabled: false),
-        const WarcraftMenuSeparator(),
-        WarcraftMenuCheckbox(
-          label: 'Auto-equip',
-          value: _autoEquip,
-          onChanged: (next) => setState(() => _autoEquip = next),
-        ),
-        WarcraftMenuRadio<String>(
-          label: 'Normal',
-          value: 'normal',
-          groupValue: _difficulty,
-          onChanged: (next) => setState(() => _difficulty = next),
-        ),
-        WarcraftMenuRadio<String>(
-          label: 'Heroic',
-          value: 'heroic',
-          groupValue: _difficulty,
-          onChanged: (next) => setState(() => _difficulty = next),
-        ),
-        const WarcraftMenuSeparator(),
-        WarcraftMenuSubmenu(
-          label: 'More',
-          children: [
-            WarcraftMenuAction(label: 'Sell', onSelected: () {}),
-            WarcraftMenuAction(label: 'Discard', onSelected: () {}),
-          ],
-        ),
-      ];
+    const WarcraftMenuLabel('Actions'),
+    WarcraftMenuAction(
+      label: 'Inspect',
+      leading: const Icon(Icons.search_rounded),
+      trailing: const Text('I'),
+      onSelected: () {},
+    ),
+    WarcraftMenuAction(
+      label: 'Equip',
+      leading: const Icon(Icons.shield_outlined),
+      trailing: const Text('E'),
+      onSelected: () {},
+    ),
+    const WarcraftMenuAction(label: 'Requires level 40', enabled: false),
+    const WarcraftMenuSeparator(),
+    WarcraftMenuCheckbox(
+      label: 'Auto-equip',
+      value: _autoEquip,
+      onChanged: (next) => setState(() => _autoEquip = next),
+    ),
+    WarcraftMenuRadio<String>(
+      label: 'Normal',
+      value: 'normal',
+      groupValue: _difficulty,
+      onChanged: (next) => setState(() => _difficulty = next),
+    ),
+    WarcraftMenuRadio<String>(
+      label: 'Heroic',
+      value: 'heroic',
+      groupValue: _difficulty,
+      onChanged: (next) => setState(() => _difficulty = next),
+    ),
+    const WarcraftMenuSeparator(),
+    WarcraftMenuSubmenu(
+      label: 'More',
+      children: [
+        WarcraftMenuAction(label: 'Sell', onSelected: () {}),
+        WarcraftMenuAction(label: 'Discard', onSelected: () {}),
+      ],
+    ),
+  ];
 
   @override
   Widget build(BuildContext context) {

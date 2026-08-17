@@ -61,36 +61,96 @@ class ComponentShowcase extends StatelessWidget {
   final ValueChanged<WarcraftFaction> onFactionChanged;
 
   static const _sections = <_ShowcaseItem>[
-    _ShowcaseItem('Buttons', 'Actions, sizes, states, and keyboard behavior',
-        Icons.ads_click_rounded, ButtonsSection()),
-    _ShowcaseItem('Badges', 'Status, faction, size, and silhouette variants',
-        Icons.workspace_premium_rounded, BadgesSection()),
-    _ShowcaseItem('Card', 'Ornamental surfaces and composable sections',
-        Icons.auto_awesome_mosaic_rounded, CardsSection()),
-    _ShowcaseItem('Inputs', 'Focused, disabled, and multiline form controls',
-        Icons.edit_note_rounded, InputsSection()),
-    _ShowcaseItem('Label', 'Field labels and required-state treatment',
-        Icons.label_outline_rounded, LabelsSection()),
-    _ShowcaseItem('Checkbox & Radio', 'Faction controls with accessible states',
-        Icons.check_circle_outline_rounded, CheckboxRadioSection()),
-    _ShowcaseItem('Tabs', 'Horizontal, vertical, and faction navigation',
-        Icons.tab_rounded, TabsSection()),
-    _ShowcaseItem('Accordion', 'Animated disclosure with semantic state',
-        Icons.view_agenda_outlined, AccordionSection()),
-    _ShowcaseItem('Pagination', 'Responsive page-window navigation',
-        Icons.more_horiz_rounded, PaginationSection()),
-    _ShowcaseItem('Tooltip', 'Rarity-aware contextual information',
-        Icons.info_outline_rounded, TooltipSection()),
-    _ShowcaseItem('Spinner & Skeleton', 'Loading feedback across factions',
-        Icons.hourglass_top_rounded, SpinnerSkeletonSection()),
-    _ShowcaseItem('Avatar', 'Character identity, sizes, and fallbacks',
-        Icons.account_circle_outlined, AvatarSection()),
-    _ShowcaseItem('Dropdown Menu', 'Actions, selection, and nested navigation',
-        Icons.menu_open_rounded, DropdownMenuSection()),
-    _ShowcaseItem('Toast', 'Stacked notifications by intent and position',
-        Icons.notifications_active_outlined, ToastSection()),
-    _ShowcaseItem('Cursor', 'Pointer affordances for desktop and web',
-        Icons.mouse_outlined, CursorSection()),
+    _ShowcaseItem(
+      'Buttons',
+      'Actions, sizes, states, and keyboard behavior',
+      Icons.ads_click_rounded,
+      ButtonsSection(),
+    ),
+    _ShowcaseItem(
+      'Badges',
+      'Status, faction, size, and silhouette variants',
+      Icons.workspace_premium_rounded,
+      BadgesSection(),
+    ),
+    _ShowcaseItem(
+      'Card',
+      'Ornamental surfaces and composable sections',
+      Icons.auto_awesome_mosaic_rounded,
+      CardsSection(),
+    ),
+    _ShowcaseItem(
+      'Inputs',
+      'Focused, disabled, and multiline form controls',
+      Icons.edit_note_rounded,
+      InputsSection(),
+    ),
+    _ShowcaseItem(
+      'Label',
+      'Field labels and required-state treatment',
+      Icons.label_outline_rounded,
+      LabelsSection(),
+    ),
+    _ShowcaseItem(
+      'Checkbox & Radio',
+      'Faction controls with accessible states',
+      Icons.check_circle_outline_rounded,
+      CheckboxRadioSection(),
+    ),
+    _ShowcaseItem(
+      'Tabs',
+      'Horizontal, vertical, and faction navigation',
+      Icons.tab_rounded,
+      TabsSection(),
+    ),
+    _ShowcaseItem(
+      'Accordion',
+      'Animated disclosure with semantic state',
+      Icons.view_agenda_outlined,
+      AccordionSection(),
+    ),
+    _ShowcaseItem(
+      'Pagination',
+      'Responsive page-window navigation',
+      Icons.more_horiz_rounded,
+      PaginationSection(),
+    ),
+    _ShowcaseItem(
+      'Tooltip',
+      'Rarity-aware contextual information',
+      Icons.info_outline_rounded,
+      TooltipSection(),
+    ),
+    _ShowcaseItem(
+      'Spinner & Skeleton',
+      'Loading feedback across factions',
+      Icons.hourglass_top_rounded,
+      SpinnerSkeletonSection(),
+    ),
+    _ShowcaseItem(
+      'Avatar',
+      'Character identity, sizes, and fallbacks',
+      Icons.account_circle_outlined,
+      AvatarSection(),
+    ),
+    _ShowcaseItem(
+      'Dropdown Menu',
+      'Actions, selection, and nested navigation',
+      Icons.menu_open_rounded,
+      DropdownMenuSection(),
+    ),
+    _ShowcaseItem(
+      'Toast',
+      'Stacked notifications by intent and position',
+      Icons.notifications_active_outlined,
+      ToastSection(),
+    ),
+    _ShowcaseItem(
+      'Cursor',
+      'Pointer affordances for desktop and web',
+      Icons.mouse_outlined,
+      CursorSection(),
+    ),
   ];
 
   @override
@@ -137,10 +197,7 @@ class ComponentShowcase extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    _Hero(
-                      faction: faction,
-                      onFactionChanged: onFactionChanged,
-                    ),
+                    _Hero(faction: faction, onFactionChanged: onFactionChanged),
                     const SizedBox(height: WarcraftTokens.spacing3xl),
                     for (var index = 0; index < _sections.length; index++) ...[
                       _SectionCard(item: _sections[index]),
@@ -199,10 +256,10 @@ class _Hero extends StatelessWidget {
               Text(
                 'A production-ready fantasy UI kit for Flutter.',
                 style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                      color: theme.foreground,
-                      fontWeight: FontWeight.w700,
-                      height: 1.2,
-                    ),
+                  color: theme.foreground,
+                  fontWeight: FontWeight.w700,
+                  height: 1.2,
+                ),
               ),
               const SizedBox(height: WarcraftTokens.spacingMd),
               Text(
@@ -326,9 +383,9 @@ class _SectionCard extends StatelessWidget {
                     Text(
                       item.title,
                       style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                            color: theme.foreground,
-                            fontWeight: FontWeight.w700,
-                          ),
+                        color: theme.foreground,
+                        fontWeight: FontWeight.w700,
+                      ),
                     ),
                     Text(
                       item.description,

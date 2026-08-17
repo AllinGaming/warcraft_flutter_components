@@ -23,8 +23,10 @@ class TabsSection extends StatelessWidget {
           ),
           const SizedBox(height: 12),
         ],
-        const Text('Vertical orientation',
-            style: TextStyle(color: Colors.white70)),
+        const Text(
+          'Vertical orientation',
+          style: TextStyle(color: Colors.white70),
+        ),
         const SizedBox(height: 8),
         WarcraftTabs(
           orientation: Axis.vertical,

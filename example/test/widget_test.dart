@@ -18,8 +18,9 @@ void main() {
     expect(find.text('Cursor'), findsOneWidget);
   });
 
-  testWidgets('showcase remains overflow-free on a narrow mobile viewport',
-      (tester) async {
+  testWidgets('showcase remains overflow-free on a narrow mobile viewport', (
+    tester,
+  ) async {
     tester.view.physicalSize = const Size(390, 844);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.resetPhysicalSize);
